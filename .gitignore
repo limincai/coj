@@ -1,0 +1,82 @@
+# 编译输出文件
+target/
+out/
+
+# IDEA 文件
+.idea/
+*.iml
+*.iws
+.idea_modules/
+
+# Java 类文件
+*.class
+
+# 日志文件
+*.log
+*.logs
+*.trace
+
+# 临时文件
+*.tmp
+*.bak
+*.swp
+*.swo
+*.orig
+
+# 系统文件
+.DS_Store
+Thumbs.db
+.DS_Store?
+._*
+
+# MacOS文件
+.AppleDouble
+.LSOverride
+
+# JAR 包文件
+*.jar
+*.war
+*.ear
+
+# 配置文件（如可能包含敏感信息）
+application.properties
+application.yml
+application.yaml
+application-dev.yml
+application-test.yml
+
+# Maven 缓存
+.mvn/
+.mvnw
+.mvnw.cmd
+
+# Gradle 缓存
+.gradle/
+build/
+
+# Node.js 相关
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# 覆盖率报告
+coverage/
+*.lcov
+*.coverage
+*.nyc_output
+
+# 运行时文件
+hs_err_pid*
+replay_pid*
+
+# Docker 文件
+*.pid
+logs/
+tmp/
+
+# 测试结果
+test-output/
+
+# Intellij IDEA 运行时配置文件
+!/src/test/
