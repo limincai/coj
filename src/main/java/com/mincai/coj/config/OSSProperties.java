@@ -1,12 +1,12 @@
 package com.mincai.coj.config;
 
 import lombok.Data;
-import lombok.Getter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 /**
+ * 阿里云 oss 属性配置
+ *
  * @author limincai
  */
 @Component

@@ -17,6 +17,13 @@ public class Result {
     }
 
     /**
+     * 成功但不反悔数据
+     */
+    public static <Void> Response<Void> success() {
+        return new Response<Void>(0, "ok");
+    }
+
+    /**
      * 失败
      */
     public static Response<Void> error(ErrorCode errorCode) {

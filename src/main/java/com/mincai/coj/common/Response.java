@@ -1,9 +1,9 @@
 package com.mincai.coj.common;
 
-import java.io.Serializable;
-
 import com.mincai.coj.enums.ErrorCode;
 import lombok.Data;
+
+import java.io.Serializable;
 
 /**
  * 通用返回类
@@ -22,6 +22,11 @@ public class Response<T> implements Serializable {
     public Response(int code, T data, String message) {
         this.code = code;
         this.data = data;
+        this.message = message;
+    }
+
+    public Response(int code, String message) {
+        this.code = code;
         this.message = message;
     }
 
