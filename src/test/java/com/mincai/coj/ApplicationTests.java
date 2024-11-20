@@ -6,6 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 import javax.annotation.Resource;
+import java.util.Random;
 import java.util.UUID;
 
 @SpringBootTest
@@ -47,4 +48,9 @@ class ApplicationTests {
         System.out.println(UUID.randomUUID());
     }
 
+    @Test
+    public void test() {
+        String s = stringRedisTemplate.opsForValue().get("user:register:verify:code:3206820023@qq.com");
+        System.out.println(s);
+    }
 }

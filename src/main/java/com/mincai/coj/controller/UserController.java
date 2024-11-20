@@ -41,10 +41,12 @@ public class UserController {
     public Response<Integer> userRegister(@RequestBody UserDTO userDTO) {
         // 参数校验
         String userAccount = userDTO.getUserAccount();
+        String userEmail = userDTO.getUserEmail();
+        String getCaptcha = userDTO.getCaptcha();
         String userPassword = userDTO.getUserPassword();
         String userConfirmedPassword = userDTO.getUserConfirmedPassword();
-        if (StringUtils.isAnyBlank(userAccount, userPassword, userConfirmedPassword)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        if (StringUtils.isAnyBlank(userAccount, userEmail, userPassword, userConfirmedPassword, getCaptcha)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "必填信息不能为空");
         }
         return userService.userRegister(userDTO);
     }
@@ -102,7 +104,7 @@ public class UserController {
      * 用户自己修改自己
      */
     @PostMapping("/update")
-    public Response<UserVO> userUpdate(HttpSession session,@RequestBody UserVO updateUserVO) {
+    public Response<UserVO> userUpdate(HttpSession session, @RequestBody UserVO updateUserVO) {
         // 参数校验
         UserVO loginUserVO = (UserVO) session.getAttribute(UserConstant.USER_LOGIN_STATE);
         if (loginUserVO == null) {

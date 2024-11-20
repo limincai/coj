@@ -44,6 +44,7 @@ application.yml
 application.yaml
 application-dev.yml
 application-test.yml
+application-prod.yml
 
 # Maven 缓存
 .mvn/

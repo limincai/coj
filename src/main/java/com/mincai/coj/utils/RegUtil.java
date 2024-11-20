@@ -26,4 +26,20 @@ public class RegUtil {
         String regex = "^[a-zA-Z0-9]{8,16}$";
         return Pattern.matches(regex, userPassword);
     }
+
+    /**
+     * 判断是否为合法的邮箱
+     */
+    public static boolean isLegalUserEmail(String userEmail) {
+        String regex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+        return Pattern.matches(regex, userEmail);
+    }
+
+    /**
+     * 判断是否为合法的验证码
+     */
+    public static boolean isLegalCaptcha(String verificationCode) {
+        String regex = "^[A-Za-z0-9]{5}$";
+        return Pattern.matches(regex, verificationCode);
+    }
 }

@@ -27,6 +27,16 @@ public class UserDTO implements Serializable {
     private String userPassword;
 
     /**
+     * 用户邮箱
+     */
+    private String userEmail;
+
+    /**
+     * 验证码
+     */
+    private String captcha;
+
+    /**
      * 用户确认密码
      */
     private String userConfirmedPassword;

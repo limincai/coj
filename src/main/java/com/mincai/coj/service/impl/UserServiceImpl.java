@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mincai.coj.common.Response;
 import com.mincai.coj.common.Result;
 import com.mincai.coj.config.OSSProperties;
+import com.mincai.coj.constant.EmailConstant;
 import com.mincai.coj.constant.UserConstant;
 import com.mincai.coj.enums.ErrorCode;
 import com.mincai.coj.exception.BusinessException;
@@ -15,9 +16,11 @@ import com.mincai.coj.mapper.UserMapper;
 import com.mincai.coj.model.domain.User;
 import com.mincai.coj.model.dto.UserDTO;
 import com.mincai.coj.model.vo.UserVO;
+import com.mincai.coj.service.EmailService;
 import com.mincai.coj.service.UserService;
 import com.mincai.coj.utils.RegUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -43,6 +47,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Resource
     UserMapper userMapper;
 
+    @Resource
+    EmailService emailService;
+
 
     /**
      * 单次上传文件最大大小：5MB
@@ -60,6 +67,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public Response<Integer> userRegister(UserDTO userDTO) {
         String userAccount = userDTO.getUserAccount();
+        String userEmail = userDTO.getUserEmail();
+        String captcha = userDTO.getCaptcha();
         String userPassword = userDTO.getUserPassword();
         String userConfirmedPassword = userDTO.getUserConfirmedPassword();
 
@@ -68,14 +77,34 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (!RegUtil.isLegalUserAccount(userAccount)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号或密码格式错误");
         }
-        // 密码为 8 - 16 位不允许带特殊字符
-        if (!RegUtil.isLegalUserPassword(userAccount)) {
+        // 邮箱格式是否正确
+        if (!RegUtil.isLegalUserEmail(userEmail)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号或密码格式错误");
         }
-        // 密码与确认密码一致
-        if (!userPassword.equals(userConfirmedPassword)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码与却惹密码不一致");
+        // 验证码格式是否正确
+        if (!RegUtil.isLegalCaptcha(captcha)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "验证码格式错误");
         }
+        // 密码为 8 - 16 位不允许带特殊字符
+        if (!RegUtil.isLegalUserPassword(userAccount)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱格式错误");
+        }
+        // 密码与确认密码一致
+        if (!userPassword.equalsIgnoreCase(userConfirmedPassword)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码与确认密码不一致");
+        }
+
+        // 验证验证码
+        String userRegisterRedisKey = EmailConstant.USER_REGISTER_CAPTCHA_REDIS_KEY + userEmail;
+        log.error(userRegisterRedisKey);
+        String redisCaptcha = stringRedisTemplate.opsForValue().get(userRegisterRedisKey);
+        if (StringUtils.isEmpty(redisCaptcha)) {
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "验证码已失效或不存在");
+        }
+        if (!redisCaptcha.equalsIgnoreCase(captcha)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "验证码错误");
+        }
+
         // 查询数据库是否有相同账号的用户
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(User::getUserAccount, userAccount);
@@ -84,13 +113,29 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户名已存在");
         }
 
+        // 查询数据库是否有相同邮箱的用户
+        queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getUserEmail, userEmail);
+        count = userMapper.selectCount(queryWrapper);
+        if (count > 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱已被注册");
+        }
+
+
+        // 验证码通过删除验证码
+        emailService.deleteCaptcha(userRegisterRedisKey + userEmail, userEmail);
+
         // todo 用户密码加密
 
         // 插入用户
         User user = new User();
         user.setUserAccount(userAccount);
         user.setUserPassword(userPassword);
+        user.setUserEmail(userEmail);
+        user.setUserNickname("添柴少年" + System.currentTimeMillis());
         save(user);
+
+        // todo 发送成功注册消息给用户
 
         return Result.success(user.getUserId());
     }
@@ -241,6 +286,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private UserVO domain2Dto(User user) {
         Integer userId = user.getUserId();
         Integer userRole = user.getUserRole();
+        String userEmail = user.getUserEmail();
         String userNickname = user.getUserNickname();
         String userAvatarUrl = user.getUserAvatarUrl();
         Date createTime = user.getCreateTime();
@@ -248,6 +294,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         UserVO userVO = new UserVO();
         userVO.setUserId(userId);
         userVO.setUserRole(userRole);
+        userVO.setUserEmail(userEmail);
         userVO.setUserNickname(userNickname);
         userVO.setUserAvatarUrl(userAvatarUrl);
         userVO.setCreateTime(createTime);

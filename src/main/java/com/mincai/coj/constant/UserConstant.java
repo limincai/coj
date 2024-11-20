@@ -12,6 +12,7 @@ public interface UserConstant {
      */
     String USER_LOGIN_STATE = "user_login_session";
 
+
     /**
      * 用户封禁编号
      */

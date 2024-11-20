@@ -65,6 +65,12 @@
             <artifactId>spring-session-data-redis</artifactId>
         </dependency>
 
+        <!-- 邮箱依赖 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+
         <!-- thumbnailator 压缩图片-->
         <dependency>
             <groupId>net.coobird</groupId>
