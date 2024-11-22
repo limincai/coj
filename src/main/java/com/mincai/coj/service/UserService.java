@@ -16,9 +16,6 @@ import java.io.IOException;
  */
 public interface UserService extends IService<User> {
 
-
-    String uploadImg(MultipartFile multipartFile) throws IOException;
-
     /**
      * 用户注册
      */
@@ -43,4 +40,9 @@ public interface UserService extends IService<User> {
      * 用户修改
      */
     Response<UserVO> userUpdate(HttpSession session, UserVO loginUserVO, UserVO updateUserVO);
+
+    /**
+     * 用户上传头像
+     */
+    String uploadAvatar(MultipartFile multipartFile,Integer loginUserId) throws IOException;
 }

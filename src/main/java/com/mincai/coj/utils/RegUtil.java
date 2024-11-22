@@ -42,4 +42,12 @@ public class RegUtil {
         String regex = "^[A-Za-z0-9]{5}$";
         return Pattern.matches(regex, verificationCode);
     }
+
+    /**
+     * 判断是否为合法的图片格式
+     */
+    public static boolean isLegalPictureFormat(String verificationCode) {
+        String regex = "(?i)^.*\\.(jpg|jpeg|png|gif|bmp|tiff|webp)$";
+        return Pattern.matches(regex, verificationCode);
+    }
 }

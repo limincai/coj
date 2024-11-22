@@ -3,15 +3,26 @@ package com.mincai.coj.service.impl;
 import com.mincai.coj.common.Response;
 import com.mincai.coj.common.Result;
 import com.mincai.coj.constant.EmailConstant;
+import com.mincai.coj.enums.ErrorCode;
+import com.mincai.coj.exception.BusinessException;
 import com.mincai.coj.service.EmailService;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 import javax.annotation.Resource;
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
+import java.io.UnsupportedEncodingException;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -19,13 +30,18 @@ import java.util.concurrent.TimeUnit;
  * @author limincai
  */
 @Service
+@Slf4j
 public class EmailServiceImpl implements EmailService {
+
 
     @Resource
     StringRedisTemplate stringRedisTemplate;
 
     @Resource
     JavaMailSender javaMailSender;
+
+    @Resource
+    TemplateEngine templateEngine;
 
     @Value("${spring.mail.username}")
     private String username;
@@ -38,16 +54,14 @@ public class EmailServiceImpl implements EmailService {
         // 生成验证码
         String captcha = generateCaptcha();
 
-        // 构造邮箱
-        // todo 使用 MimeMailMessage 更加个性化的定制邮箱发送内容
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(username);
-        message.setTo(userEmail);
-        message.setSubject(subject);
-        message.setText("您的验证码是：" + captcha + "，有效期为 5 分钟。");
-
         // 发送邮件
-        javaMailSender.send(message);
+
+        try {
+            sendCaptchaEmail(subject, userEmail, captcha);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "邮件发送失败，请重试");
+        }
 
         // 保存验证码到 redis 中 有效期五分钟
         stringRedisTemplate.opsForValue().set(redisKey + userEmail, captcha, 5, TimeUnit.MINUTES);
@@ -80,4 +94,31 @@ public class EmailServiceImpl implements EmailService {
 
         return captcha.toString();
     }
+
+    /**
+     * 发送邮件
+     */
+    private void sendCaptchaEmail(String subject, String toEmail, String captcha) throws MessagingException, UnsupportedEncodingException {
+        // 创建邮件上下文
+        Context context = new Context();
+        context.setVariable("subject", subject);
+        context.setVariable("captcha", captcha);
+        String htmlContent = templateEngine.process(EmailConstant.CAPTCHA_EMAIL_TEMPLATE, context);
+
+        // 创建 MimeMessage 对象
+        MimeMessage message = javaMailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+        // 设置邮件相关信息
+        helper.setFrom(username, "COJ");
+        helper.setTo(toEmail);
+        helper.setSubject(subject + captcha);
+        // 支持 HTML
+        helper.setText(htmlContent, true);
+
+        // 发送邮件
+        javaMailSender.send(message);
+    }
+
+
 }

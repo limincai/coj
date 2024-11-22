@@ -21,13 +21,17 @@ import com.mincai.coj.service.UserService;
 import com.mincai.coj.utils.RegUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.Date;
 
@@ -50,6 +54,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Resource
     EmailService emailService;
 
+    @Value("${password.salt}")
+    private String salt;
 
     /**
      * 单次上传文件最大大小：5MB
@@ -125,12 +131,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 验证码通过删除验证码
         emailService.deleteCaptcha(userRegisterRedisKey + userEmail, userEmail);
 
-        // todo 用户密码加密
+        // 用户密码加密处理
+        String encryptedUserPassword = encryptUserPassword(userPassword);
 
         // 插入用户
         User user = new User();
         user.setUserAccount(userAccount);
-        user.setUserPassword(userPassword);
+        user.setUserPassword(encryptedUserPassword);
         user.setUserEmail(userEmail);
         user.setUserNickname("添柴少年" + System.currentTimeMillis());
         save(user);
@@ -151,6 +158,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String userAccount = userDTO.getUserAccount();
         String userPassword = userDTO.getUserPassword();
 
+        // todo 进行验证码登陆
+
         // 参数校验
         if (!RegUtil.isLegalUserAccount(userAccount) || !RegUtil.isLegalUserPassword(userPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号或密码格式错误");
@@ -158,7 +167,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         // 查询数据库账号是否存在或密码输入错误
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(User::getUserAccount, userAccount).eq(User::getUserPassword, userPassword);
+        queryWrapper.eq(User::getUserAccount, userAccount).eq(User::getUserPassword, encryptUserPassword(userPassword));
         User user = this.getOne(queryWrapper);
         if (user == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号不存在或密码错误");
@@ -257,11 +266,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
 
     @Override
-    public String uploadImg(MultipartFile multipartFile) throws IOException {
+    public String uploadAvatar(MultipartFile multipartFile, Integer loginUserId) throws IOException {
         // todo 压缩图片
 
         // 原文件名
         String originFileName = multipartFile.getOriginalFilename();
+
+        // 验证文件名是否正确
+        if (!RegUtil.isLegalPictureFormat(originFileName)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件格式不正确，请重试");
+        }
 
         // 上传的文件名
         String fileName = IMG_DIRECTORY + UUID.randomUUID() + originFileName.substring(originFileName.lastIndexOf("."));
@@ -278,6 +292,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         //关闭客户端
         ossClient.shutdown();
+
+        // 保存头像地址到数据库
+        String avatarUrl = ossProperties.getBucket() + fileName;
+        User user = new User();
+        user.setUserId(loginUserId);
+        user.setUserAvatarUrl(avatarUrl);
+        updateById(user);
 
         // 返回访问路径
         return ossProperties.getBucket() + fileName;
@@ -299,6 +320,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         userVO.setUserAvatarUrl(userAvatarUrl);
         userVO.setCreateTime(createTime);
         return userVO;
+    }
+
+    /**
+     * 用户密码加密处理
+     */
+    private String encryptUserPassword(String userPassword) {
+        return DigestUtils.md5DigestAsHex((salt + userPassword).getBytes());
     }
 
 }

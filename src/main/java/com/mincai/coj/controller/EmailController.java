@@ -8,6 +8,7 @@ import com.mincai.coj.model.dto.UserDTO;
 import com.mincai.coj.service.EmailService;
 import com.mincai.coj.utils.RegUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,14 +29,17 @@ public class EmailController {
     /**
      * 发送邮箱验证码
      */
-    @PostMapping("/send-register-code")
-    public Response<Void> sendRegisterCode(UserDTO userDTO) {
+    @PostMapping("/send-register-captcha")
+    public Response<Void> sendRegisterCaptcha(UserDTO userDTO) {
         // 参数校验
         String userEmail = userDTO.getUserEmail();
+        if (StringUtils.isEmpty(userEmail)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱不能为空");
+        }
         if (!RegUtil.isLegalUserEmail(userEmail)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱格式错误");
         }
-        return emailService.sendCaptcha(EmailConstant.USER_REGISTER_CAPTCHA_REDIS_KEY, userEmail, EmailConstant.SEND_MAIL_SUBJECT_REGISTER);
+        return emailService.sendCaptcha(EmailConstant.USER_REGISTER_CAPTCHA_REDIS_KEY, userEmail, EmailConstant.MAIL_SUBJECT_REGISTER);
     }
 
 }

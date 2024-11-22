@@ -2,6 +2,7 @@ package com.mincai.coj.controller;
 
 
 import com.mincai.coj.common.Response;
+import com.mincai.coj.common.Result;
 import com.mincai.coj.constant.UserConstant;
 import com.mincai.coj.enums.ErrorCode;
 import com.mincai.coj.exception.BusinessException;
@@ -31,6 +32,10 @@ public class UserController {
 
     @Resource
     UserService userService;
+
+    // todo 自定义注解，对需要登陆和权限的接口进行切面处理
+
+    // todo 整合 so-token，简化权限校验
 
     /**
      * 用户注册
@@ -72,8 +77,8 @@ public class UserController {
     public Response<Void> userLogout(HttpSession session) {
         // 参数校验
         UserVO loginUserVO = (UserVO) session.getAttribute(UserConstant.USER_LOGIN_STATE);
-        if (Objects.isNull(loginUserVO)) {
-            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR, "还未登陆");
+        if (loginUserVO == null) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
         }
         return userService.userLogout(session);
     }
@@ -87,8 +92,8 @@ public class UserController {
     public Response<Void> userDelete(HttpSession session, @RequestBody UserDTO userDTO) {
         // 参数校验
         UserVO loginUserVO = (UserVO) session.getAttribute(UserConstant.USER_LOGIN_STATE);
-        if (Objects.isNull(loginUserVO)) {
-            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR, "还未登陆");
+        if (loginUserVO == null) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
         }
 
         Integer deleteUserId = userDTO.getUserId();
@@ -100,7 +105,6 @@ public class UserController {
 
     /**
      * 用户修改
-     * 修改用户不敏感参数
      * 用户自己修改自己
      */
     @PostMapping("/update")
@@ -113,14 +117,22 @@ public class UserController {
         return userService.userUpdate(session, loginUserVO, updateUserVO);
     }
 
-    @PostMapping
-    public String upload(MultipartFile multipartFile) {
+    // todo 用户找回密码
+
+    // todo 用户上传头像
+    @PostMapping("/upload_avatar")
+    public Response<String> uploadAvatar(MultipartFile multipartFile, HttpSession session) {
+        // 登陆用户才能上传头像
+        UserVO loginUserVo = (UserVO) session.getAttribute(UserConstant.USER_LOGIN_STATE);
+        if (loginUserVo == null) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+        }
         String fileName;
         try {
-            fileName = userService.uploadImg(multipartFile);
+            fileName = userService.uploadAvatar(multipartFile, loginUserVo.getUserId());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "系统出错，请重试");
         }
-        return fileName;
+        return Result.success(fileName);
     }
 }

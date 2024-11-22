@@ -14,5 +14,10 @@ public interface EmailConstant {
     /**
      * 修改密码邮箱发送主题
      */
-    String SEND_MAIL_SUBJECT_REGISTER = "来自 COJ,您的注册验证码";
+    String MAIL_SUBJECT_REGISTER = "COJ 邮箱注册验证码：";
+
+    /**
+     * 验证码邮件文件名模板
+     */
+    String CAPTCHA_EMAIL_TEMPLATE = "captcha-email-template";
 }
