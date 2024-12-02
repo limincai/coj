@@ -82,3 +82,4 @@ test-output/
 # Intellij IDEA 运行时配置文件
 !/src/test/
 !/target/
+/target/
