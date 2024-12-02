@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COJ 验证码邮件</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f9f9f9;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: #ffffff;
+            width: 100%;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .header {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .sub-header {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .code {
+            font-size: 32px;
+            font-weight: bold;
+            color: #8a56ac;
+            background-color: #f9f5ff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .footer {
+            font-size: 12px;
+            color: #999;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">[[${subject}]]：[[${captcha}]]</div>
+    <div class="sub-header">你正在进行邮箱验证操作，验证码为：</div>
+    <div class="code">[[${captcha}]]</div>
+    <div class="footer">
+        此验证码 5 分钟内有效<br>
+        如非本人操作<br>
+        转给他人将导致账号被盗和个人信息泄漏，请防止诈骗
+    </div>
+</div>
+</body>
+</html>

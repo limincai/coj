@@ -1,4 +1,4 @@
-# coj 在线判题系统
+# 坤码网 ikuncode 在线判题系统
 
 > 作者：[limincai](https://github.com/limincai)
 
@@ -13,6 +13,7 @@
 - hutool
 - thymeleaf
 - Docker（代码沙箱实现）
+- 阿里云 oss 对象存储
 
 ## 核心业务时序图
 
