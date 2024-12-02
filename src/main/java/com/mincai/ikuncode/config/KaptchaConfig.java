@@ -28,7 +28,7 @@ public class KaptchaConfig {
         // 验证码图片的宽度
         properties.setProperty("kaptcha.image.width", "120");
         // 验证码图片的高度
-        properties.setProperty("kaptcha.image.height", "30");
+        properties.setProperty("kaptcha.image.height", "50");
         // 验证码字符长度
         properties.setProperty("kaptcha.textproducer.char.length", "5");
         // 验证码字体

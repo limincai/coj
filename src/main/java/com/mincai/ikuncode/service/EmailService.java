@@ -10,12 +10,13 @@ import com.mincai.ikuncode.common.Response;
 public interface EmailService {
 
     /**
-     * 发送验证码
+     * 发送注册验证码
      */
-    Response<Void> sendCaptcha(String redisKey, String userEmail, String subject);
+    Response<Void> sendRegisterCaptcha(String redisKey, String userEmail, String subject);
+
 
     /**
-     * 删除验证码
+     * 发送找回密码验证码
      */
-    void deleteCaptcha(String redisKey, String userEmail);
+    Response<Void> sendRetrievePasswordCaptcha(String redisKey, String userEmail, String subject);
 }

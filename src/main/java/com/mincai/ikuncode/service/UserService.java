@@ -49,4 +49,9 @@ public interface UserService extends IService<User> {
      * 获取保存的用户信息
      */
     Response<UserVO> getLoginUserVO(HttpSession session);
+
+    /**
+     * 用户找回密码
+     */
+    Response<Void> userRetrievePassword(UserDTO userDTO);
 }

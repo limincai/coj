@@ -35,7 +35,7 @@ public class UserController {
 
     // todo 整合 so-token，简化权限校验
 
-    // 完善用户增删改查接口
+    // todo 完善用户增删改查接口
 
 
     /**
@@ -120,7 +120,21 @@ public class UserController {
         return userService.userUpdate(session, loginUserVO, updateUserVO);
     }
 
-    // todo 用户找回密码
+    /**
+     * 用户找回密码
+     */
+    @PostMapping("/retrieve-password")
+    public Response<Void> userRetrievePassword(@RequestBody UserDTO userDTO) {
+        // 验证参数
+        String userEmail = userDTO.getUserEmail();
+        String getCaptcha = userDTO.getCaptcha();
+        String userPassword = userDTO.getUserPassword();
+        String userConfirmedPassword = userDTO.getUserConfirmedPassword();
+        if (StringUtils.isAnyBlank(userEmail, userPassword, userConfirmedPassword, getCaptcha)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "必填信息不能为空");
+        }
+        return userService.userRetrievePassword(userDTO);
+    }
 
     // todo 用户上传头像
     @PostMapping("/upload_avatar")

@@ -1,5 +1,6 @@
 package com.mincai.ikuncode;
 
+import com.mincai.ikuncode.utils.RegUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -51,5 +52,14 @@ class ApplicationTests {
     public void test() {
         String s = stringRedisTemplate.opsForValue().get("user:register:verify:code:3206820023@qq.com");
         System.out.println(s);
+    }
+
+    @Test
+    void testReg() {
+        if (!RegUtil.isLegalUserEmail("3206820023@qq.com")) {
+            System.out.println("邮箱格式错误");
+        } else {
+            System.out.println("验证码发送成功");
+        }
     }
 }

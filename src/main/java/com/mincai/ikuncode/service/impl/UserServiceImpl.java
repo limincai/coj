@@ -77,9 +77,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (!RegUtil.isLegalUserAccount(userAccount)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号或密码格式错误");
         }
+        // 密码为 8 - 16 位不允许带特殊字符
+        if (!RegUtil.isLegalUserAccount(userPassword)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号或密码格式错误");
+        }
         // 邮箱格式是否正确
         if (!RegUtil.isLegalUserEmail(userEmail)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号或密码格式错误");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱格式错误");
         }
         // 验证码格式是否正确
         if (!RegUtil.isLegalCaptcha(captcha)) {
@@ -107,27 +111,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 查询数据库是否有相同账号的用户
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(User::getUserAccount, userAccount);
-        Long count = userMapper.selectCount(queryWrapper);
-        if (count > 0) {
+        User user = getOne(queryWrapper);
+        if (user != null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户名已存在");
         }
 
-        // 查询数据库是否有相同邮箱的用户
-        queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(User::getUserEmail, userEmail);
-        count = userMapper.selectCount(queryWrapper);
-        if (count > 0) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱已被注册");
-        }
-
         // 验证码通过删除验证码
-        emailService.deleteCaptcha(userRegisterRedisKey, userEmail);
+        stringRedisTemplate.delete(userRegisterRedisKey);
 
         // 用户密码加密处理
         String encryptedUserPassword = encryptUserPassword(userPassword);
 
         // 插入用户
-        User user = new User();
+        user = new User();
         user.setUserAccount(userAccount);
         user.setUserPassword(encryptedUserPassword);
         user.setUserEmail(userEmail);
@@ -166,7 +162,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
 
         // 验证码无误，删除验证码缓存
-        stringRedisTemplate.opsForValue().getAndDelete(captchaRedisKey);
+        stringRedisTemplate.delete(captchaRedisKey);
 
         // 查询数据库账号是否存在或密码输入错误
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
@@ -278,6 +274,68 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         // 用户信息存在返回
         return Result.success(loginUseVO);
+    }
+
+    @Override
+    public Response<Void> userRetrievePassword(UserDTO userDTO) {
+        String userPassword = userDTO.getUserPassword();
+        String userEmail = userDTO.getUserEmail();
+        String captcha = userDTO.getCaptcha();
+        String userConfirmedPassword = userDTO.getUserConfirmedPassword();
+
+        // 参数校验
+        // 密码为 8 - 16 位不允许带特殊字符
+        if (!RegUtil.isLegalUserAccount(userPassword)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码格式错误");
+        }
+        // 密码与确认密码一致
+        if (!userPassword.equalsIgnoreCase(userConfirmedPassword)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码与确认密码不一致");
+        }
+        // 邮箱格式是否正确
+        if (!RegUtil.isLegalUserEmail(userEmail)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱格式错误");
+        }
+        // 验证码格式是否正确
+        if (!RegUtil.isLegalCaptcha(captcha)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "验证码格式错误");
+        }
+
+        // 验证验证码
+        String userRetrievePasswordRedisKey = EmailConstant.USER_RETRIEVE_PASSWORD_CAPTCHA_REDIS_KEY + userEmail;
+        String redisCaptcha = stringRedisTemplate.opsForValue().get(userRetrievePasswordRedisKey);
+        if (StringUtils.isEmpty(redisCaptcha)) {
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "验证码已失效或不存在");
+        }
+        if (!redisCaptcha.equalsIgnoreCase(captcha)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "验证码错误");
+        }
+
+        // 查询数据库当前邮箱用户是否存在
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getUserEmail, userEmail);
+        User user = getOne(queryWrapper);
+        if (user == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "当前邮箱未注册用户");
+        }
+
+        // 用户新改密码加密处理
+        String encryptedUserPassword = encryptUserPassword(userPassword);
+
+        // 修改密码不能与当前密码一致
+        if (user.getUserPassword().equals(encryptedUserPassword)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "修改密码不能与当前密码一致");
+        }
+
+        // 验证码通过删除验证码
+        stringRedisTemplate.delete(userRetrievePasswordRedisKey);
+
+        user.setUserPassword(encryptedUserPassword);
+
+        // 更新用户到数据库
+        updateById(user);
+
+        return Result.success();
     }
 
 

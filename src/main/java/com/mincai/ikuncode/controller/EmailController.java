@@ -11,6 +11,7 @@ import com.mincai.ikuncode.utils.RegUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,19 +29,38 @@ public class EmailController {
     EmailService emailService;
 
     /**
-     * 发送邮箱验证码
+     * 发送注册邮箱验证码
      */
-    @PostMapping("/send-register-captcha")
-    public Response<Void> sendRegisterCaptcha(UserDTO userDTO) {
-        // 参数校验
+    @PostMapping("/get-register-captcha")
+    public Response<Void> getRegisterCaptcha(@RequestBody UserDTO userDTO) {
         String userEmail = userDTO.getUserEmail();
+        // 参数校验
+        validateUserEmail(userEmail);
+        return emailService.sendRegisterCaptcha(EmailConstant.USER_REGISTER_CAPTCHA_REDIS_KEY, userEmail, EmailSubject.REGISTER_EMAIL);
+    }
+
+    /**
+     * 发送找回密码邮箱验证码
+     */
+    @PostMapping("/get-retrieve-password-captcha")
+    public Response<Void> getRetrievePasswordCaptcha(@RequestBody UserDTO userDTO) {
+        String userEmail = userDTO.getUserEmail();
+        // 参数校验
+        validateUserEmail(userEmail);
+        return emailService.sendRetrievePasswordCaptcha(EmailConstant.USER_RETRIEVE_PASSWORD_CAPTCHA_REDIS_KEY, userEmail, EmailSubject.RETRIEVE_PASSWORD_EMAIL);
+    }
+
+
+    /**
+     * 验证邮箱的格式
+     */
+    private void validateUserEmail(String userEmail) {
         if (StringUtils.isEmpty(userEmail)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱不能为空");
         }
+        System.out.println("userEmail:" + userEmail);
         if (!RegUtil.isLegalUserEmail(userEmail)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱格式错误");
         }
-        return emailService.sendCaptcha(EmailConstant.USER_REGISTER_CAPTCHA_REDIS_KEY, userEmail, EmailSubject.REGISTER_EMAIL);
     }
-
 }
