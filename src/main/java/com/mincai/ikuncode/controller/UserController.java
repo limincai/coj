@@ -137,7 +137,7 @@ public class UserController {
     }
 
     // todo 用户上传头像
-    @PostMapping("/upload_avatar")
+    @PostMapping("/upload-avatar")
     @CheckLogin()
     public Response<String> uploadAvatar(MultipartFile multipartFile, HttpSession session) {
         // 登陆用户才能上传头像
