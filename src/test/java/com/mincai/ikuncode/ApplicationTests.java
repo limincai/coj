@@ -1,5 +1,9 @@
 package com.mincai.ikuncode;
 
+import com.mincai.ikuncode.model.domain.Question;
+import com.mincai.ikuncode.model.domain.QuestionSubmit;
+import com.mincai.ikuncode.service.QuestionService;
+import com.mincai.ikuncode.service.QuestionSubmitService;
 import com.mincai.ikuncode.utils.RegUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -18,6 +22,12 @@ class ApplicationTests {
 
     @Resource
     StringRedisTemplate stringRedisTemplate;
+
+    @Resource
+    QuestionService questionService;
+
+    @Resource
+    QuestionSubmitService questionSubmitService;
 
     @Test
     void contextLoads() {
@@ -61,5 +71,30 @@ class ApplicationTests {
         } else {
             System.out.println("验证码发送成功");
         }
+    }
+
+    @Test
+    void testQuestionService() {
+        Question question = new Question();
+        question.setQuestionTitle("1");
+        question.setQuestionContent("1");
+        question.setQuestionTags("{[1]}");
+        question.setQuestionAnswer("1");
+        question.setQuestionSubmitNum(1L);
+        question.setQuestionAcceptedNum(1L);
+        question.setJudgeCase("1");
+        question.setJudgeConfig("1");
+        questionService.save(question);
+    }
+
+    @Test
+    void testQuestionSubmitService() {
+        QuestionSubmit questionSubmit = new QuestionSubmit();
+        questionSubmit.setUserId(1L);
+        questionSubmit.setQuestionId(1L);
+        questionSubmit.setLanguage("1");
+        questionSubmit.setCode("1");
+        questionSubmit.setJudgeInfo("1");
+        questionSubmitService.save(questionSubmit);
     }
 }

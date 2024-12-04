@@ -16,9 +16,10 @@ import com.mincai.ikuncode.enums.ErrorCode;
 import com.mincai.ikuncode.exception.BusinessException;
 import com.mincai.ikuncode.mapper.UserMapper;
 import com.mincai.ikuncode.model.domain.User;
-import com.mincai.ikuncode.model.dto.UserDTO;
+import com.mincai.ikuncode.model.dto.user.UserLoginRequest;
+import com.mincai.ikuncode.model.dto.user.UserRegisterRequest;
+import com.mincai.ikuncode.model.dto.user.UserUpdateRequest;
 import com.mincai.ikuncode.model.vo.UserVO;
-import com.mincai.ikuncode.service.EmailService;
 import com.mincai.ikuncode.service.UserService;
 import com.mincai.ikuncode.utils.RegUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -52,12 +53,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Resource
     StringRedisTemplate stringRedisTemplate;
 
-    @Resource
-    UserMapper userMapper;
-
-    @Resource
-    EmailService emailService;
-
     @Value("${password.salt}")
     private String salt;
 
@@ -65,12 +60,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * 用户注册
      */
     @Override
-    public Response<Long> userRegister(UserDTO userDTO) {
-        String userAccount = userDTO.getUserAccount();
-        String userEmail = userDTO.getUserEmail();
-        String captcha = userDTO.getCaptcha();
-        String userPassword = userDTO.getUserPassword();
-        String userConfirmedPassword = userDTO.getUserConfirmedPassword();
+    public Response<Long> userRegister(UserRegisterRequest userRegisterRequest) {
+        String userAccount = userRegisterRequest.getUserAccount();
+        String userEmail = userRegisterRequest.getUserEmail();
+        String captcha = userRegisterRequest.getCaptcha();
+        String userPassword = userRegisterRequest.getUserPassword();
+        String userConfirmedPassword = userRegisterRequest.getUserConfirmedPassword();
 
         // 参数校验
         // 账号为 8 - 16 位不允许带特殊字符
@@ -137,11 +132,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * 用户登陆
      */
     @Override
-    public Response<UserVO> userLogin(HttpSession session, UserDTO userDTO) {
-        String userAccount = userDTO.getUserAccount();
-        String userPassword = userDTO.getUserPassword();
-        String userCaptcha = userDTO.getCaptcha();
-        String captchaKey = userDTO.getCaptchaKey();
+    public Response<UserVO> userLogin(HttpSession session, UserLoginRequest userLoginRequest) {
+        String userAccount = userLoginRequest.getUserAccount();
+        String userPassword = userLoginRequest.getUserPassword();
+        String userCaptcha = userLoginRequest.getCaptcha();
+        String captchaKey = userLoginRequest.getCaptchaKey();
 
         // 参数校验
         if (!RegUtil.isLegalUserAccount(userAccount) || !RegUtil.isLegalUserPassword(userPassword)) {
@@ -235,15 +230,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * 用户修改
      */
     @Override
-    public Response<UserVO> userUpdate(HttpSession session, UserVO loginUserVO, UserVO updateUserVO) {
+    public Response<UserVO> userUpdate(HttpSession session, UserVO loginUserVO, UserUpdateRequest userUpdateRequest) {
         // 参数校验
-        Long userId = updateUserVO.getUserId();
-        String userNickname = updateUserVO.getUserNickname();
-
-        // 用户不能修改自己的权限
-        if (!loginUserVO.getUserRole().equals(updateUserVO.getUserRole())) {
-            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
-        }
+        Long userId = userUpdateRequest.getUserId();
+        String userNickname = userUpdateRequest.getUserNickname();
 
         // 昵称少于 20 位
         if (userNickname.length() > 20) {
@@ -277,11 +267,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public Response<Void> userRetrievePassword(UserDTO userDTO) {
-        String userPassword = userDTO.getUserPassword();
-        String userEmail = userDTO.getUserEmail();
-        String captcha = userDTO.getCaptcha();
-        String userConfirmedPassword = userDTO.getUserConfirmedPassword();
+    public Response<Void> userRetrievePassword(UserRegisterRequest userRegisterRequest) {
+        String userPassword = userRegisterRequest.getUserPassword();
+        String userEmail = userRegisterRequest.getUserEmail();
+        String captcha = userRegisterRequest.getCaptcha();
+        String userConfirmedPassword = userRegisterRequest.getUserConfirmedPassword();
 
         // 参数校验
         // 密码为 8 - 16 位不允许带特殊字符

@@ -8,7 +8,10 @@ import com.mincai.ikuncode.constant.UserConstant;
 import com.mincai.ikuncode.constant.UserRole;
 import com.mincai.ikuncode.enums.ErrorCode;
 import com.mincai.ikuncode.exception.BusinessException;
-import com.mincai.ikuncode.model.dto.UserDTO;
+import com.mincai.ikuncode.model.dto.user.UserDeleteRequest;
+import com.mincai.ikuncode.model.dto.user.UserLoginRequest;
+import com.mincai.ikuncode.model.dto.user.UserRegisterRequest;
+import com.mincai.ikuncode.model.dto.user.UserUpdateRequest;
 import com.mincai.ikuncode.model.vo.UserVO;
 import com.mincai.ikuncode.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -41,38 +44,42 @@ public class UserController {
     /**
      * 用户注册
      *
-     * @param userDTO 账号为 8 - 16 位不允许带特殊字符；密码为 8 - 16 位不允许带特殊字符
+     * @param userRegisterRequest 账号为 8 - 16 位不允许带特殊字符；密码为 8 - 16 位不允许带特殊字符
      */
     @PostMapping("/register")
-    public Response<Long> userRegister(@RequestBody UserDTO userDTO) {
+    public Response<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
         // 参数校验
-        String userAccount = userDTO.getUserAccount();
-        String userEmail = userDTO.getUserEmail();
-        String getCaptcha = userDTO.getCaptcha();
-        String userPassword = userDTO.getUserPassword();
-        String userConfirmedPassword = userDTO.getUserConfirmedPassword();
+        String userAccount = userRegisterRequest.getUserAccount();
+        String userEmail = userRegisterRequest.getUserEmail();
+        String getCaptcha = userRegisterRequest.getCaptcha();
+        String userPassword = userRegisterRequest.getUserPassword();
+        String userConfirmedPassword = userRegisterRequest.getUserConfirmedPassword();
         if (StringUtils.isAnyBlank(userAccount, userEmail, userPassword, userConfirmedPassword, getCaptcha)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "必填信息不能为空");
         }
-        return userService.userRegister(userDTO);
+        return userService.userRegister(userRegisterRequest);
     }
 
     /**
      * 用户登录
      */
     @PostMapping("/login")
-    public Response<UserVO> userLogin(HttpSession session, @RequestBody UserDTO userDTO) {
+    public Response<UserVO> userLogin(HttpSession session, @RequestBody UserLoginRequest userLoginRequest) {
         // 参数校验
-        String userAccount = userDTO.getUserAccount();
-        String userPassword = userDTO.getUserPassword();
-        String userCaptcha = userDTO.getCaptcha();
+        String userAccount = userLoginRequest.getUserAccount();
+        String userPassword = userLoginRequest.getUserPassword();
+        String userCaptcha = userLoginRequest.getCaptcha();
+        String captchaKey = userLoginRequest.getCaptchaKey();
         if (StringUtils.isAnyBlank(userAccount, userPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号或密码未输入");
         }
         if (StringUtils.isEmpty(userCaptcha)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "未输入验证码");
         }
-        return userService.userLogin(session, userDTO);
+        if (StringUtils.isEmpty(captchaKey)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        return userService.userLogin(session, userLoginRequest);
     }
 
     /**
@@ -91,10 +98,10 @@ public class UserController {
      */
     @PostMapping("/delete")
     @CheckLogin(UserRole.ADMIN)
-    public Response<Void> userDelete(HttpSession session, @RequestBody UserDTO userDTO) {
+    public Response<Void> userDelete(HttpSession session, @RequestBody UserDeleteRequest userDeleteRequest) {
         // 参数校验
         UserVO loginUserVO = (UserVO) session.getAttribute(UserConstant.USER_LOGIN_STATE);
-        Long deleteUserId = userDTO.getUserId();
+        Long deleteUserId = userDeleteRequest.getUserId();
         if (deleteUserId == null || deleteUserId < 1) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -115,25 +122,25 @@ public class UserController {
      */
     @PostMapping("/update")
     @CheckLogin()
-    public Response<UserVO> userUpdate(HttpSession session, @RequestBody UserVO updateUserVO) {
+    public Response<UserVO> userUpdate(HttpSession session, @RequestBody UserUpdateRequest userUpdateRequest) {
         UserVO loginUserVO = (UserVO) session.getAttribute(UserConstant.USER_LOGIN_STATE);
-        return userService.userUpdate(session, loginUserVO, updateUserVO);
+        return userService.userUpdate(session, loginUserVO, userUpdateRequest);
     }
 
     /**
      * 用户找回密码
      */
     @PostMapping("/retrieve-password")
-    public Response<Void> userRetrievePassword(@RequestBody UserDTO userDTO) {
+    public Response<Void> userRetrievePassword(@RequestBody UserRegisterRequest userRegisterRequest) {
         // 验证参数
-        String userEmail = userDTO.getUserEmail();
-        String getCaptcha = userDTO.getCaptcha();
-        String userPassword = userDTO.getUserPassword();
-        String userConfirmedPassword = userDTO.getUserConfirmedPassword();
+        String userEmail = userRegisterRequest.getUserEmail();
+        String getCaptcha = userRegisterRequest.getCaptcha();
+        String userPassword = userRegisterRequest.getUserPassword();
+        String userConfirmedPassword = userRegisterRequest.getUserConfirmedPassword();
         if (StringUtils.isAnyBlank(userEmail, userPassword, userConfirmedPassword, getCaptcha)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "必填信息不能为空");
         }
-        return userService.userRetrievePassword(userDTO);
+        return userService.userRetrievePassword(userRegisterRequest);
     }
 
     // todo 用户上传头像

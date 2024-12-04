@@ -1,14 +1,16 @@
-package com.mincai.ikuncode.model.dto;
+package com.mincai.ikuncode.model.dto.captcha;
 
 import lombok.Data;
 
 import java.io.Serializable;
 
 /**
+ * 验证码图片数据传输对象
+ *
  * @author limincai
  */
 @Data
-public class CaptchaPictureDT0 implements Serializable {
+public class CaptchaPictureDto implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**

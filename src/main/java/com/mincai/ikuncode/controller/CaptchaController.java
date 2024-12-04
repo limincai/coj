@@ -6,7 +6,7 @@ import com.mincai.ikuncode.common.Result;
 import com.mincai.ikuncode.constant.CaptchaConstant;
 import com.mincai.ikuncode.enums.ErrorCode;
 import com.mincai.ikuncode.exception.BusinessException;
-import com.mincai.ikuncode.model.dto.CaptchaPictureDT0;
+import com.mincai.ikuncode.model.dto.captcha.CaptchaPictureDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import javax.imageio.ImageIO;
-import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.util.Base64;
@@ -39,7 +38,7 @@ public class CaptchaController {
     private StringRedisTemplate stringRedisTemplate;
 
     @GetMapping("/get")
-    public Response<CaptchaPictureDT0> getCaptcha(HttpServletResponse response) {
+    public Response<CaptchaPictureDto> getCaptcha() {
         // 生成唯一标识符（UUID）
         String captchaKey = UUID.randomUUID().toString();
 
@@ -61,10 +60,10 @@ public class CaptchaController {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "验证码生成失败,请重试");
         }
 
-        CaptchaPictureDT0 captchaPictureDT0 = new CaptchaPictureDT0();
-        captchaPictureDT0.setCaptchaUrl("data:image/jpeg;base64," + base64Image);
-        captchaPictureDT0.setCaptchaKey(captchaKey);
+        CaptchaPictureDto captchaPictureDto = new CaptchaPictureDto();
+        captchaPictureDto.setCaptchaUrl("data:image/jpeg;base64," + base64Image);
+        captchaPictureDto.setCaptchaKey(captchaKey);
 
-        return Result.success(captchaPictureDT0);
+        return Result.success(captchaPictureDto);
     }
 }

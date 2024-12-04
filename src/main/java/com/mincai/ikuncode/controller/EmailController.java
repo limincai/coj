@@ -5,7 +5,7 @@ import com.mincai.ikuncode.constant.EmailConstant;
 import com.mincai.ikuncode.constant.EmailSubject;
 import com.mincai.ikuncode.enums.ErrorCode;
 import com.mincai.ikuncode.exception.BusinessException;
-import com.mincai.ikuncode.model.dto.UserDTO;
+import com.mincai.ikuncode.model.dto.email.GetEmailRequest;
 import com.mincai.ikuncode.service.EmailService;
 import com.mincai.ikuncode.utils.RegUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -32,8 +32,8 @@ public class EmailController {
      * 发送注册邮箱验证码
      */
     @PostMapping("/get-register-captcha")
-    public Response<Void> getRegisterCaptcha(@RequestBody UserDTO userDTO) {
-        String userEmail = userDTO.getUserEmail();
+    public Response<Void> getRegisterCaptcha(@RequestBody GetEmailRequest getEmailRequest) {
+        String userEmail = getEmailRequest.getUserEmail();
         // 参数校验
         validateUserEmail(userEmail);
         return emailService.sendRegisterCaptcha(EmailConstant.USER_REGISTER_CAPTCHA_REDIS_KEY, userEmail, EmailSubject.REGISTER_EMAIL);
@@ -43,8 +43,8 @@ public class EmailController {
      * 发送找回密码邮箱验证码
      */
     @PostMapping("/get-retrieve-password-captcha")
-    public Response<Void> getRetrievePasswordCaptcha(@RequestBody UserDTO userDTO) {
-        String userEmail = userDTO.getUserEmail();
+    public Response<Void> getRetrievePasswordCaptcha(@RequestBody GetEmailRequest getEmailRequest) {
+        String userEmail = getEmailRequest.getUserEmail();
         // 参数校验
         validateUserEmail(userEmail);
         return emailService.sendRetrievePasswordCaptcha(EmailConstant.USER_RETRIEVE_PASSWORD_CAPTCHA_REDIS_KEY, userEmail, EmailSubject.RETRIEVE_PASSWORD_EMAIL);
