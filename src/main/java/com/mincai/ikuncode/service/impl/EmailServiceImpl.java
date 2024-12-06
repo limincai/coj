@@ -26,8 +26,6 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class EmailServiceImpl implements EmailService {
 
-    // todo 把发送邮箱改为 rabbitmq 发送，提高用户的体验
-
     @Resource
     UserMapper userMapper;
 
@@ -47,7 +45,7 @@ public class EmailServiceImpl implements EmailService {
         queryWrapper.eq(User::getUserEmail, userEmail);
         User user = userMapper.selectOne(queryWrapper);
         if (user != null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户名已存在");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "该邮箱已被注册");
         }
 
         // 保存验证码到 redis 并发送消息给 mq，通知发送邮箱
@@ -86,7 +84,6 @@ public class EmailServiceImpl implements EmailService {
         // 发布邮件任务到 RabbitMQ
         EmailMessage emailMessage = new EmailMessage(subject, userEmail, captcha);
         rabbitTemplate.convertAndSend(RabbitMQConfig.EMAIL_EXCHANGE, RabbitMQConfig.EMAIL_ROUTING_KEY, emailMessage);
-
 
         // 保存验证码到 redis 中 有效期五分钟
         stringRedisTemplate.opsForValue().set(redisKey + userEmail, captcha, 5, TimeUnit.MINUTES);
