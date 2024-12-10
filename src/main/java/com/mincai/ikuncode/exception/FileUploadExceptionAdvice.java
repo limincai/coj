@@ -2,7 +2,7 @@ package com.mincai.ikuncode.exception;
 
 import com.mincai.ikuncode.common.Response;
 import com.mincai.ikuncode.common.Result;
-import com.mincai.ikuncode.enums.ErrorCode;
+import com.mincai.ikuncode.model.enums.ErrorCode;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;

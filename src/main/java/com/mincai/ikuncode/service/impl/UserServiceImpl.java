@@ -12,13 +12,14 @@ import com.mincai.ikuncode.constant.CaptchaConstant;
 import com.mincai.ikuncode.constant.EmailConstant;
 import com.mincai.ikuncode.constant.UserConstant;
 import com.mincai.ikuncode.constant.UserRole;
-import com.mincai.ikuncode.enums.ErrorCode;
 import com.mincai.ikuncode.exception.BusinessException;
 import com.mincai.ikuncode.mapper.UserMapper;
 import com.mincai.ikuncode.model.domain.User;
 import com.mincai.ikuncode.model.dto.user.UserLoginRequest;
 import com.mincai.ikuncode.model.dto.user.UserRegisterRequest;
+import com.mincai.ikuncode.model.dto.user.UserRetrievePasswordRequest;
 import com.mincai.ikuncode.model.dto.user.UserUpdateRequest;
+import com.mincai.ikuncode.model.enums.ErrorCode;
 import com.mincai.ikuncode.model.vo.UserVO;
 import com.mincai.ikuncode.service.UserService;
 import com.mincai.ikuncode.utils.RegUtil;
@@ -267,11 +268,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public Response<Void> userRetrievePassword(UserRegisterRequest userRegisterRequest) {
-        String userPassword = userRegisterRequest.getUserPassword();
-        String userEmail = userRegisterRequest.getUserEmail();
-        String captcha = userRegisterRequest.getCaptcha();
-        String userConfirmedPassword = userRegisterRequest.getUserConfirmedPassword();
+    public Response<Void> userRetrievePassword(UserRetrievePasswordRequest userRetrievePasswordRequest) {
+        String userPassword = userRetrievePasswordRequest.getUserPassword();
+        String userEmail = userRetrievePasswordRequest.getUserEmail();
+        String captcha = userRetrievePasswordRequest.getCaptcha();
+        String userConfirmedPassword = userRetrievePasswordRequest.getUserConfirmedPassword();
 
         // 参数校验
         // 密码为 8 - 16 位不允许带特殊字符

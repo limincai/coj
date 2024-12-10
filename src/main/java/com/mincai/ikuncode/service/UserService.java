@@ -5,6 +5,7 @@ import com.mincai.ikuncode.common.Response;
 import com.mincai.ikuncode.model.domain.User;
 import com.mincai.ikuncode.model.dto.user.UserLoginRequest;
 import com.mincai.ikuncode.model.dto.user.UserRegisterRequest;
+import com.mincai.ikuncode.model.dto.user.UserRetrievePasswordRequest;
 import com.mincai.ikuncode.model.dto.user.UserUpdateRequest;
 import com.mincai.ikuncode.model.vo.UserVO;
 import org.springframework.web.multipart.MultipartFile;
@@ -55,5 +56,5 @@ public interface UserService extends IService<User> {
     /**
      * 用户找回密码
      */
-    Response<Void> userRetrievePassword(UserRegisterRequest userRegisterRequest);
+    Response<Void> userRetrievePassword(UserRetrievePasswordRequest userRetrievePasswordRequest);
 }

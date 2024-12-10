@@ -11,6 +11,7 @@
         <result property="userPassword" column="user_password" jdbcType="VARCHAR"/>
         <result property="userEmail" column="user_email" jdbcType="VARCHAR"/>
         <result property="userNickname" column="user_nickname" jdbcType="VARCHAR"/>
+        <result property="userProfile" column="user_profile" jdbcType="VARCHAR"/>
         <result property="userAvatarUrl" column="user_avatar_url" jdbcType="CHAR"/>
         <result property="userJijiao" column="user_jijiao" jdbcType="INTEGER"/>
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
@@ -21,7 +22,7 @@
     <sql id="Base_Column_List">
         user_id
         ,user_role,user_account,
-        user_password,user_email,user_nickname,
+        user_password,user_email,user_nickname,user_profile,
         user_avatar_url,user_jijiao,create_time,update_time,
         is_deleted
     </sql>

@@ -2,8 +2,8 @@ package com.mincai.ikuncode.aop;
 
 import com.mincai.ikuncode.annotation.CheckLogin;
 import com.mincai.ikuncode.constant.UserConstant;
-import com.mincai.ikuncode.enums.ErrorCode;
 import com.mincai.ikuncode.exception.BusinessException;
+import com.mincai.ikuncode.model.enums.ErrorCode;
 import com.mincai.ikuncode.model.vo.UserVO;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;

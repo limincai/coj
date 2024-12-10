@@ -10,7 +10,8 @@
         <result property="questionId" column="question_id" jdbcType="BIGINT"/>
         <result property="language" column="language" jdbcType="VARCHAR"/>
         <result property="code" column="code" jdbcType="VARCHAR"/>
-        <result property="judgeInfo" column="judge_info" jdbcType="VARCHAR"/>
+        <result property="questionJudgeInfo" column="question_judge_info" jdbcType="VARCHAR"/>
+        <result property="status" column="status" jdbcType="TINYINT"/>
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
         <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
         <result property="isDeleted" column="is_deleted" jdbcType="TINYINT"/>
@@ -18,7 +19,7 @@
 
     <sql id="Base_Column_List">
         question_submit_id,user_id,question_id,
-        language,code,judge_info,
-        create_time,update_time,is_deleted
+        language,code,question_judge_info,
+        status,create_time,update_time,is_deleted
     </sql>
 </mapper>

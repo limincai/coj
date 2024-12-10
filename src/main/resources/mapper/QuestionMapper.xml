@@ -7,22 +7,22 @@
     <resultMap id="BaseResultMap" type="com.mincai.ikuncode.model.domain.Question">
         <id property="questionId" column="question_id" jdbcType="BIGINT"/>
         <result property="questionTitle" column="question_title" jdbcType="VARCHAR"/>
-        <result property="questionContent" column="question_content" jdbcType="VARCHAR"/>
+        <result property="questionDescription" column="question_description" jdbcType="VARCHAR"/>
         <result property="questionTags" column="question_tags" jdbcType="VARCHAR"/>
         <result property="questionAnswer" column="question_answer" jdbcType="VARCHAR"/>
         <result property="questionSubmitNum" column="question_submit_num" jdbcType="BIGINT"/>
         <result property="questionAcceptedNum" column="question_accepted_num" jdbcType="BIGINT"/>
-        <result property="judgeCase" column="judge_case" jdbcType="VARCHAR"/>
-        <result property="judgeConfig" column="judge_config" jdbcType="VARCHAR"/>
+        <result property="questionJudgeCase" column="question_judge_case" jdbcType="VARCHAR"/>
+        <result property="questionJudgeConfig" column="question_judge_config" jdbcType="VARCHAR"/>
         <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
         <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
         <result property="isDeleted" column="is_deleted" jdbcType="TINYINT"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        question_id,question_title,question_content,
+        question_id,question_title,question_description,
         question_tags,question_answer,question_submit_num,
-        question_accepted_num,judge_case,judge_config,
+        question_accepted_num,question_judge_case,question_judge_config,
         create_time,update_time,is_deleted
     </sql>
 </mapper>

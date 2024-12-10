@@ -1,9 +1,6 @@
 package com.mincai.ikuncode.model.domain;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -30,10 +27,10 @@ public class Question implements Serializable {
     private String questionTitle;
 
     /**
-     * 题目内容
+     * 题目描述
      */
-    @TableField(value = "question_content")
-    private String questionContent;
+    @TableField(value = "question_description")
+    private String questionDescription;
 
     /**
      * 题目标签 json 字符串
@@ -62,14 +59,14 @@ public class Question implements Serializable {
     /**
      * 判题用例 json 对象
      */
-    @TableField(value = "judge_case")
-    private String judgeCase;
+    @TableField(value = "question_judge_case")
+    private String questionJudgeCase;
 
     /**
      * 判题配置 json 对象
      */
-    @TableField(value = "judge_config")
-    private String judgeConfig;
+    @TableField(value = "question_judge_config")
+    private String questionJudgeConfig;
 
     /**
      * 创建时间
@@ -87,6 +84,7 @@ public class Question implements Serializable {
      * 是否删除，逻辑删除 0-未删除；1-删除
      */
     @TableField(value = "is_deleted")
+    @TableLogic
     private Integer isDeleted;
 
     @TableField(exist = false)

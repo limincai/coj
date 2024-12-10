@@ -1,9 +1,6 @@
 package com.mincai.ikuncode.model.domain;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -50,8 +47,15 @@ public class QuestionSubmit implements Serializable {
     /**
      * 判题信息，json 对象
      */
-    @TableField(value = "judge_info")
-    private String judgeInfo;
+    @TableField(value = "question_judge_info")
+    private String questionJudgeInfo;
+
+    /**
+     * 判题状态：0-待判题；1-判题中；2-成功；3-失败
+     */
+    @TableField(value = "status")
+    private Integer status;
+
 
     /**
      * 创建时间
@@ -69,6 +73,7 @@ public class QuestionSubmit implements Serializable {
      * 是否删除，逻辑删除,0-未删除，1-已删除
      */
     @TableField(value = "is_deleted")
+    @TableLogic
     private Integer isDeleted;
 
     @TableField(exist = false)

@@ -6,12 +6,9 @@ import com.mincai.ikuncode.common.Response;
 import com.mincai.ikuncode.common.Result;
 import com.mincai.ikuncode.constant.UserConstant;
 import com.mincai.ikuncode.constant.UserRole;
-import com.mincai.ikuncode.enums.ErrorCode;
 import com.mincai.ikuncode.exception.BusinessException;
-import com.mincai.ikuncode.model.dto.user.UserDeleteRequest;
-import com.mincai.ikuncode.model.dto.user.UserLoginRequest;
-import com.mincai.ikuncode.model.dto.user.UserRegisterRequest;
-import com.mincai.ikuncode.model.dto.user.UserUpdateRequest;
+import com.mincai.ikuncode.model.dto.user.*;
+import com.mincai.ikuncode.model.enums.ErrorCode;
 import com.mincai.ikuncode.model.vo.UserVO;
 import com.mincai.ikuncode.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -131,16 +128,16 @@ public class UserController {
      * 用户找回密码
      */
     @PostMapping("/retrieve-password")
-    public Response<Void> userRetrievePassword(@RequestBody UserRegisterRequest userRegisterRequest) {
+    public Response<Void> userRetrievePassword(@RequestBody UserRetrievePasswordRequest userRetrievePasswordRequest) {
         // 验证参数
-        String userEmail = userRegisterRequest.getUserEmail();
-        String getCaptcha = userRegisterRequest.getCaptcha();
-        String userPassword = userRegisterRequest.getUserPassword();
-        String userConfirmedPassword = userRegisterRequest.getUserConfirmedPassword();
+        String userEmail = userRetrievePasswordRequest.getUserEmail();
+        String getCaptcha = userRetrievePasswordRequest.getCaptcha();
+        String userPassword = userRetrievePasswordRequest.getUserPassword();
+        String userConfirmedPassword = userRetrievePasswordRequest.getUserConfirmedPassword();
         if (StringUtils.isAnyBlank(userEmail, userPassword, userConfirmedPassword, getCaptcha)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "必填信息不能为空");
         }
-        return userService.userRetrievePassword(userRegisterRequest);
+        return userService.userRetrievePassword(userRetrievePasswordRequest);
     }
 
     // todo 用户上传头像

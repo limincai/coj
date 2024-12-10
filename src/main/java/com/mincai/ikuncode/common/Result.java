@@ -1,6 +1,6 @@
 package com.mincai.ikuncode.common;
 
-import com.mincai.ikuncode.enums.ErrorCode;
+import com.mincai.ikuncode.model.enums.ErrorCode;
 
 /**
  * 返回工具类

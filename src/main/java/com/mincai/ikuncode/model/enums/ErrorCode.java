@@ -1,4 +1,4 @@
-package com.mincai.ikuncode.enums;
+package com.mincai.ikuncode.model.enums;
 
 import lombok.Getter;
 

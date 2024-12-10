@@ -1,6 +1,6 @@
 package com.mincai.ikuncode.exception;
 
-import com.mincai.ikuncode.enums.ErrorCode;
+import com.mincai.ikuncode.model.enums.ErrorCode;
 import lombok.Getter;
 
 /**

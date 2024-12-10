@@ -1,7 +1,9 @@
 package com.mincai.ikuncode;
 
-import com.mincai.ikuncode.model.domain.Question;
 import com.mincai.ikuncode.model.domain.QuestionSubmit;
+import com.mincai.ikuncode.model.dto.question.QuestionAddRequest;
+import com.mincai.ikuncode.model.dto.question.QuestionJudgeCase;
+import com.mincai.ikuncode.model.dto.question.QuestionJudgeConfig;
 import com.mincai.ikuncode.service.QuestionService;
 import com.mincai.ikuncode.service.QuestionSubmitService;
 import com.mincai.ikuncode.utils.RegUtil;
@@ -11,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 import javax.annotation.Resource;
+import java.util.Collections;
 import java.util.UUID;
 
 @SpringBootTest
@@ -28,6 +31,7 @@ class ApplicationTests {
 
     @Resource
     QuestionSubmitService questionSubmitService;
+
 
     @Test
     void contextLoads() {
@@ -75,16 +79,20 @@ class ApplicationTests {
 
     @Test
     void testQuestionService() {
-        Question question = new Question();
-        question.setQuestionTitle("1");
-        question.setQuestionContent("1");
-        question.setQuestionTags("{[1]}");
-        question.setQuestionAnswer("1");
-        question.setQuestionSubmitNum(1L);
-        question.setQuestionAcceptedNum(1L);
-        question.setJudgeCase("1");
-        question.setJudgeConfig("1");
-        questionService.save(question);
+        QuestionAddRequest questionAddRequest = new QuestionAddRequest();
+        questionAddRequest.setQuestionTitle("1");
+        questionAddRequest.setQuestionDescription("1");
+        questionAddRequest.setQuestionTags(Collections.singletonList("1"));
+        questionAddRequest.setQuestionAnswer("1");
+        QuestionJudgeCase questionJudgeCase = new QuestionJudgeCase();
+        questionJudgeCase.setInput("1");
+        questionJudgeCase.setOutput("1");
+        questionAddRequest.setQuestionJudgeCase(Collections.singletonList(questionJudgeCase));
+        QuestionJudgeConfig questionJudgeConfig = new QuestionJudgeConfig();
+        questionJudgeConfig.setTimeLimit(1L);
+        questionJudgeConfig.setMemoryLimit(1L);
+        questionAddRequest.setQuestionJudgeConfig(questionJudgeConfig);
+        questionService.questionAdd(questionAddRequest);
     }
 
     @Test
@@ -94,7 +102,7 @@ class ApplicationTests {
         questionSubmit.setQuestionId(1L);
         questionSubmit.setLanguage("1");
         questionSubmit.setCode("1");
-        questionSubmit.setJudgeInfo("1");
+        questionSubmit.setQuestionJudgeInfo("1");
         questionSubmitService.save(questionSubmit);
     }
 }

@@ -1,9 +1,6 @@
 package com.mincai.ikuncode.model.domain;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -53,6 +50,12 @@ public class User implements Serializable {
     private String userNickname;
 
     /**
+     * 用户简介
+     */
+    @TableField(value = "user_profile")
+    private String userProfile;
+
+    /**
      * 用户头像地址
      */
     @TableField(value = "user_avatar_url")
@@ -80,6 +83,7 @@ public class User implements Serializable {
      * 是否删除（0-否；1- 删除）
      */
     @TableField(value = "is_deleted")
+    @TableLogic
     private Integer isDeleted;
 
     @TableField(exist = false)

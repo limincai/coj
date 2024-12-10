@@ -10,7 +10,7 @@ import java.io.Serializable;
  * @author limincai
  */
 @Data
-public class userRetrievePasswordRequest implements Serializable {
+public class UserRetrievePasswordRequest implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -22,7 +22,7 @@ public class userRetrievePasswordRequest implements Serializable {
     /**
      * 验证码
      */
-    private String getCaptcha;
+    private String captcha;
 
     /**
      * 用户密码
