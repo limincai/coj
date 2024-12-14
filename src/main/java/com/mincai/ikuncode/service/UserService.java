@@ -8,10 +8,8 @@ import com.mincai.ikuncode.model.dto.user.UserRegisterRequest;
 import com.mincai.ikuncode.model.dto.user.UserRetrievePasswordRequest;
 import com.mincai.ikuncode.model.dto.user.UserUpdateRequest;
 import com.mincai.ikuncode.model.vo.UserVO;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
 
 /**
  * @author limincai
@@ -41,12 +39,8 @@ public interface UserService extends IService<User> {
     /**
      * 用户修改
      */
-    Response<UserVO> userUpdate(HttpSession session, UserVO loginUserVO, UserUpdateRequest userUpdateRequest);
+    Response<UserVO> userUpdate(HttpSession session, UserUpdateRequest userUpdateRequest);
 
-    /**
-     * 用户上传头像
-     */
-    String uploadAvatar(MultipartFile multipartFile, Long loginUserId) throws IOException;
 
     /**
      * 获取保存的用户信息
@@ -57,4 +51,12 @@ public interface UserService extends IService<User> {
      * 用户找回密码
      */
     Response<Void> userRetrievePassword(UserRetrievePasswordRequest userRetrievePasswordRequest);
+
+
+    UserVO domain2Dto(User user);
+
+    /**
+     * 根据 id 获取用户
+     */
+    Response<UserVO> userGetById(Long userId);
 }

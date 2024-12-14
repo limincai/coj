@@ -5,11 +5,9 @@ import com.mincai.ikuncode.annotation.CheckLogin;
 import com.mincai.ikuncode.common.Response;
 import com.mincai.ikuncode.constant.UserRole;
 import com.mincai.ikuncode.exception.BusinessException;
-import com.mincai.ikuncode.model.domain.Question;
-import com.mincai.ikuncode.model.dto.question.QuestionAddRequest;
-import com.mincai.ikuncode.model.dto.question.QuestionDeleteRequest;
-import com.mincai.ikuncode.model.dto.question.QuestionListRequest;
+import com.mincai.ikuncode.model.dto.question.*;
 import com.mincai.ikuncode.model.enums.ErrorCode;
+import com.mincai.ikuncode.model.vo.QuestionAdminVO;
 import com.mincai.ikuncode.model.vo.QuestionVO;
 import com.mincai.ikuncode.service.QuestionService;
 import lombok.extern.slf4j.Slf4j;
@@ -71,7 +69,7 @@ public class QuestionController {
      */
     @PostMapping("/list/admin")
     @CheckLogin(UserRole.ADMIN)
-    public Response<Page<Question>> questionListByAdmin(@RequestBody QuestionListRequest questionListRequest) {
+    public Response<Page<QuestionAdminVO>> questionListByAdmin(@RequestBody QuestionListRequest questionListRequest) {
         // 参数校验
         Integer currentPage = questionListRequest.getCurrentPage();
         Integer pageSize = questionListRequest.getPageSize();
@@ -86,7 +84,6 @@ public class QuestionController {
      * 题目列表（分页）普通用户
      */
     @PostMapping("/list/user")
-    @CheckLogin()
     public Response<Page<QuestionVO>> questionListByUser(@RequestBody QuestionListRequest questionListRequest) {
         // 参数校验
         Integer currentPage = questionListRequest.getCurrentPage();
@@ -109,5 +106,46 @@ public class QuestionController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         return questionService.questionGetById(questionId);
+    }
+
+    /**
+     * 根据 id 获取题目 AdminVO
+     */
+    @GetMapping("/{questionId}/admin")
+    @CheckLogin(UserRole.ADMIN)
+    public Response<QuestionAdminVO> questionGetByAdminById(@PathVariable("questionId") Long questionId) {
+        // 参数校验
+        if (questionId < 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        return questionService.questionGetByAdminById(questionId);
+    }
+
+    /**
+     * 题目更新
+     */
+    @PostMapping("/update")
+    @CheckLogin(UserRole.ADMIN)
+    public Response<Void> questionUpdate(@RequestBody QuestionUpdateRequest questionUpdateRequest) {
+        // 参数校验
+        Long questionId = questionUpdateRequest.getQuestionId();
+        if (questionId <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        return questionService.questionUpdate(questionUpdateRequest);
+    }
+
+    /**
+     * 题目搜索（分页）
+     */
+    @PostMapping("/search")
+    public Response<Page<QuestionVO>> questionSearch(@RequestBody QuestionSearchRequest questionSearchRequest) {
+        // 参数校验
+        Integer currentPage = questionSearchRequest.getCurrentPage();
+        Integer pageSize = questionSearchRequest.getPageSize();
+        if (currentPage < 0 || pageSize < 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        return questionService.questionSearch(questionSearchRequest);
     }
 }

@@ -3,7 +3,6 @@ package com.mincai.ikuncode.controller;
 
 import com.mincai.ikuncode.annotation.CheckLogin;
 import com.mincai.ikuncode.common.Response;
-import com.mincai.ikuncode.common.Result;
 import com.mincai.ikuncode.constant.UserConstant;
 import com.mincai.ikuncode.constant.UserRole;
 import com.mincai.ikuncode.exception.BusinessException;
@@ -14,11 +13,9 @@ import com.mincai.ikuncode.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
 
 /**
  * 用户接口
@@ -33,10 +30,7 @@ public class UserController {
     @Resource
     UserService userService;
 
-    // todo 整合 so-token，简化权限校验
-
     // todo 完善用户增删改查接口
-
 
     /**
      * 用户注册
@@ -120,8 +114,7 @@ public class UserController {
     @PostMapping("/update")
     @CheckLogin()
     public Response<UserVO> userUpdate(HttpSession session, @RequestBody UserUpdateRequest userUpdateRequest) {
-        UserVO loginUserVO = (UserVO) session.getAttribute(UserConstant.USER_LOGIN_STATE);
-        return userService.userUpdate(session, loginUserVO, userUpdateRequest);
+        return userService.userUpdate(session, userUpdateRequest);
     }
 
     /**
@@ -140,21 +133,16 @@ public class UserController {
         return userService.userRetrievePassword(userRetrievePasswordRequest);
     }
 
-    // todo 用户上传头像
-    @PostMapping("/upload-avatar")
+    /**
+     * 根据 id 获取用户
+     */
+    @GetMapping("/{userId}")
     @CheckLogin()
-    public Response<String> uploadAvatar(MultipartFile multipartFile, HttpSession session) {
-        // 登陆用户才能上传头像
-        UserVO loginUserVo = (UserVO) session.getAttribute(UserConstant.USER_LOGIN_STATE);
-        if (loginUserVo == null) {
-            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+    public Response<UserVO> userGetById(@PathVariable("userId") Long userId) {
+        // 参数校验
+        if (userId < 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        String fileName;
-        try {
-            fileName = userService.uploadAvatar(multipartFile, loginUserVo.getUserId());
-        } catch (IOException e) {
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "系统出错，请重试");
-        }
-        return Result.success(fileName);
+        return userService.userGetById(userId);
     }
 }

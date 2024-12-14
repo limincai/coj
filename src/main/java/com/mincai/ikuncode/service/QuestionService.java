@@ -6,6 +6,9 @@ import com.mincai.ikuncode.common.Response;
 import com.mincai.ikuncode.model.domain.Question;
 import com.mincai.ikuncode.model.dto.question.QuestionAddRequest;
 import com.mincai.ikuncode.model.dto.question.QuestionListRequest;
+import com.mincai.ikuncode.model.dto.question.QuestionSearchRequest;
+import com.mincai.ikuncode.model.dto.question.QuestionUpdateRequest;
+import com.mincai.ikuncode.model.vo.QuestionAdminVO;
 import com.mincai.ikuncode.model.vo.QuestionVO;
 
 /**
@@ -26,7 +29,7 @@ public interface QuestionService extends IService<Question> {
     /**
      * 题目列表（分页）管理员
      */
-    Response<Page<Question>> questionListByAdmin(QuestionListRequest questionListRequest);
+    Response<Page<QuestionAdminVO>> questionListByAdmin(QuestionListRequest questionListRequest);
 
 
     /**
@@ -38,5 +41,25 @@ public interface QuestionService extends IService<Question> {
      * 根据 id 获取题目 VO
      */
     Response<QuestionVO> questionGetById(Long questionId);
+
+    /**
+     * 根据 id 获取题目 AdminVO
+     */
+    Response<QuestionAdminVO> questionGetByAdminById(Long questionId);
+
+    /**
+     * 题目更新
+     */
+    Response<Void> questionUpdate(QuestionUpdateRequest questionUpdateRequest);
+
+    /**
+     * 题目搜索（分页）
+     */
+    Response<Page<QuestionVO>> questionSearch(QuestionSearchRequest questionSearchRequest);
+
+    /**
+     * question 转换为 questionVO
+     */
+    QuestionVO domain2VO(Question question);
 }
 

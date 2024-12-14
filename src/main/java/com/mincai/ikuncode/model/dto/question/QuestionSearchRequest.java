@@ -3,7 +3,6 @@ package com.mincai.ikuncode.model.dto.question;
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * 题目查询请求类
@@ -12,20 +11,21 @@ import java.util.List;
  */
 @Data
 public class QuestionSearchRequest implements Serializable {
-    /**
-     * 题目id
-     */
-    private Long questionId;
 
     /**
-     * 题目标题
+     * 搜索关键字
      */
-    private String questionTitle;
+    private String searchKeyword;
 
     /**
-     * 题目标签 json 字符串
+     * 当前页码（默认是1）
      */
-    private List<String> questionTags;
+    private Integer currentPage = 1;
+
+    /**
+     * 页面尺寸（默认是10）
+     */
+    private Integer pageSize = 10;
 
     private static final long serialVersionUID = 1L;
 }

@@ -18,6 +18,11 @@ public class QuestionSubmitAddRequest implements Serializable {
     private Long questionId;
 
     /**
+     * 题目提交相关联的 userId
+     */
+    private Long userId;
+
+    /**
      * 提交代码语言
      */
     private String language;

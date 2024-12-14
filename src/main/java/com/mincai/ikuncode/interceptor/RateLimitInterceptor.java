@@ -1,7 +1,10 @@
 package com.mincai.ikuncode.interceptor;
 
+import com.mincai.ikuncode.constant.UserConstant;
+import com.mincai.ikuncode.constant.UserRole;
 import com.mincai.ikuncode.exception.BusinessException;
 import com.mincai.ikuncode.model.enums.ErrorCode;
+import com.mincai.ikuncode.model.vo.UserVO;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -25,14 +28,22 @@ public class RateLimitInterceptor implements HandlerInterceptor {
     private final Map<String, LinkedList<Long>> userRequests = new ConcurrentHashMap<>();
 
     // 时间窗口长度（毫秒）
-    private static final long TIME_WINDOW = 3000;
+    private static final long TIME_WINDOW = 5000;
 
 
     // 最大请求次数
-    private static final int MAX_REQUESTS = 3;
+    private static final int MAX_REQUESTS = 5;
 
     @Override
     public boolean preHandle(HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler) throws Exception {
+        // 管理员无限制
+        UserVO loginUserVo = (UserVO) request.getSession().getAttribute(UserConstant.USER_LOGIN_STATE);
+        if (loginUserVo != null) {
+            if (loginUserVo.getUserRole() <= UserRole.ADMIN) {
+                return true;
+            }
+        }
+
         // 获取用户唯一标识（如 IP 地址）
         String userKey = request.getRemoteAddr();
 

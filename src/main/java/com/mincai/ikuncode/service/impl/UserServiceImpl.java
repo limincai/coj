@@ -1,13 +1,9 @@
 package com.mincai.ikuncode.service.impl;
 
-import cn.hutool.core.lang.UUID;
-import com.aliyun.oss.OSS;
-import com.aliyun.oss.OSSClientBuilder;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mincai.ikuncode.common.Response;
 import com.mincai.ikuncode.common.Result;
-import com.mincai.ikuncode.config.OSSProperties;
 import com.mincai.ikuncode.constant.CaptchaConstant;
 import com.mincai.ikuncode.constant.EmailConstant;
 import com.mincai.ikuncode.constant.UserConstant;
@@ -29,11 +25,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
-import java.io.IOException;
 import java.util.Date;
 
 /**
@@ -42,14 +36,6 @@ import java.util.Date;
 @Service
 @Slf4j
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
-
-    /**
-     * oss 保存图片文件夹
-     */
-    private final static String IMG_DIRECTORY = "img/";
-
-    @Resource
-    OSSProperties ossProperties;
 
     @Resource
     StringRedisTemplate stringRedisTemplate;
@@ -231,10 +217,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * 用户修改
      */
     @Override
-    public Response<UserVO> userUpdate(HttpSession session, UserVO loginUserVO, UserUpdateRequest userUpdateRequest) {
+    public Response<UserVO> userUpdate(HttpSession session, UserUpdateRequest userUpdateRequest) {
         // 参数校验
         Long userId = userUpdateRequest.getUserId();
         String userNickname = userUpdateRequest.getUserNickname();
+        String userProfile = userUpdateRequest.getUserProfile();
 
         // 昵称少于 20 位
         if (userNickname.length() > 20) {
@@ -244,12 +231,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         User updateUser = new User();
         updateUser.setUserId(userId);
         updateUser.setUserNickname(userNickname);
+        updateUser.setUserProfile(userProfile);
         updateById(updateUser);
 
         // 将更新后的用户存入 session 中
-        loginUserVO.setUserNickname(userNickname);
-        session.setAttribute(UserConstant.USER_LOGIN_STATE, loginUserVO);
-        return Result.success(loginUserVO);
+        UserVO userVO = domain2Dto(getById(userId));
+        session.setAttribute(UserConstant.USER_LOGIN_STATE, userVO);
+        return Result.success(userVO);
     }
 
 
@@ -329,53 +317,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return Result.success();
     }
 
-
     @Override
-    public String uploadAvatar(MultipartFile multipartFile, Long loginUserId) throws IOException {
-        // todo 压缩图片
-
-        // 原文件名
-        String originFileName = multipartFile.getOriginalFilename();
-
-        // 验证文件名是否正确
-        if (!RegUtil.isLegalPictureFormat(originFileName)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件格式不正确，请重试");
-        }
-
-        // 上传的文件名
-        String fileName = IMG_DIRECTORY + UUID.randomUUID() + originFileName.substring(originFileName.lastIndexOf("."));
-
-        // 上传文件
-        OSS ossClient = new OSSClientBuilder().build(ossProperties.getEndpoint(), ossProperties.getAccessKey(), ossProperties.getSecretAccessKey());
-        ossClient.putObject(
-                //仓库名
-                "limincai-ikuncode",
-                // 文件名
-                fileName,
-                // 原文件
-                multipartFile.getInputStream());
-
-        //关闭客户端
-        ossClient.shutdown();
-
-        // 保存头像地址到数据库
-        String avatarUrl = ossProperties.getBucket() + fileName;
-        User user = new User();
-        user.setUserId(loginUserId);
-        user.setUserAvatarUrl(avatarUrl);
-        updateById(user);
-
-        // 返回访问路径
-        return ossProperties.getBucket() + fileName;
-    }
-
-
-    private UserVO domain2Dto(User user) {
+    public UserVO domain2Dto(User user) {
         Long userId = user.getUserId();
         String userAccount = user.getUserAccount();
         Integer userRole = user.getUserRole();
         String userEmail = user.getUserEmail();
         String userNickname = user.getUserNickname();
+        String userProfile = user.getUserProfile();
         String userAvatarUrl = user.getUserAvatarUrl();
         Integer userJijiao = user.getUserJijiao();
         Date createTime = user.getCreateTime();
@@ -389,7 +338,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         userVO.setUserAvatarUrl(userAvatarUrl);
         userVO.setUserJijiao(userJijiao);
         userVO.setCreateTime(createTime);
+        userVO.setUserProfile(userProfile);
         return userVO;
+    }
+
+    /**
+     * 根据 id 获取用户
+     */
+    @Override
+    public Response<UserVO> userGetById(Long userId) {
+        User user = getById(userId);
+        // 要获取的用户不存在
+        if (user == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        return Result.success(domain2Dto(user));
     }
 
     /**

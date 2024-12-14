@@ -16,10 +16,14 @@ public class OSSProperties {
 
     private String endpoint;
 
-    private String bucket;
+    private String prefix;
 
     private String accessKey;
 
     private String secretAccessKey;
+
+    private String depositoryName;
+
+    private String bucketName;
 
 }
