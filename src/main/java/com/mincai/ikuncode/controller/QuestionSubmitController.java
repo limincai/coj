@@ -59,7 +59,7 @@ public class QuestionSubmitController {
      * 题目提交列表（分页）
      */
     @PostMapping("/list")
-    public Response<Page<QuestionSubmitVO>> listQuestionSubmitVO(@RequestBody QuestionSubmitListRequest questionSubmitListRequest) {
+    public Response<Page<QuestionSubmitVO>> questionSubmitList(@RequestBody QuestionSubmitListRequest questionSubmitListRequest) {
         // 参数校验
         Integer currentPage = questionSubmitListRequest.getCurrentPage();
         Integer pageSize = questionSubmitListRequest.getPageSize();
@@ -73,7 +73,7 @@ public class QuestionSubmitController {
      * 通过用户 id 和 题目 id 获取题目提交列表（分页）
      */
     @PostMapping("/list/user")
-    public Response<Page<QuestionSubmitVO>> listQuestionSubmitVOByUserIdByQuestionId(@RequestBody QuestionSubmitListRequest questionSubmitListRequest) {
+    public Response<Page<QuestionSubmitVO>> questionSubmitListByUserIdByQuestionId(@RequestBody QuestionSubmitListRequest questionSubmitListRequest) {
         // 参数校验
         Integer currentPage = questionSubmitListRequest.getCurrentPage();
         Integer pageSize = questionSubmitListRequest.getPageSize();

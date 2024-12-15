@@ -87,7 +87,7 @@ public class FileServiceImpl implements FileService {
         userService.updateById(user);
 
         // 更新用户登陆态
-        session.setAttribute(UserConstant.USER_LOGIN_STATE, userService.domain2Dto(userService.getById(loginUserId)));
+        session.setAttribute(UserConstant.USER_LOGIN_STATE, userService.domain2VO(userService.getById(loginUserId)));
 
         // 返回访问路径
         return ossProperties.getPrefix() + fileName;

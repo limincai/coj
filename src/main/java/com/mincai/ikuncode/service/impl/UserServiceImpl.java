@@ -160,7 +160,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
 
         // 将用户转为 userVO，进行脱敏
-        UserVO userVO = domain2Dto(user);
+        UserVO userVO = domain2VO(user);
 
         // 记录用户的登陆态
         session.setAttribute(UserConstant.USER_LOGIN_STATE, userVO);
@@ -235,7 +235,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         updateById(updateUser);
 
         // 将更新后的用户存入 session 中
-        UserVO userVO = domain2Dto(getById(userId));
+        UserVO userVO = domain2VO(getById(userId));
         session.setAttribute(UserConstant.USER_LOGIN_STATE, userVO);
         return Result.success(userVO);
     }
@@ -318,7 +318,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public UserVO domain2Dto(User user) {
+    public UserVO domain2VO(User user) {
         Long userId = user.getUserId();
         String userAccount = user.getUserAccount();
         Integer userRole = user.getUserRole();
@@ -352,7 +352,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (user == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        return Result.success(domain2Dto(user));
+        return Result.success(domain2VO(user));
     }
 
     /**

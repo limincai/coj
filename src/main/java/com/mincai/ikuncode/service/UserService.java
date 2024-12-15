@@ -53,7 +53,7 @@ public interface UserService extends IService<User> {
     Response<Void> userRetrievePassword(UserRetrievePasswordRequest userRetrievePasswordRequest);
 
 
-    UserVO domain2Dto(User user);
+    UserVO domain2VO(User user);
 
     /**
      * 根据 id 获取用户

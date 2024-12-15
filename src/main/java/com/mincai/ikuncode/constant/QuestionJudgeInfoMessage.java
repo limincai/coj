@@ -15,7 +15,7 @@ public interface QuestionJudgeInfoMessage {
 
     String MEMORY_LIMIT_EXCEEDED = "内存溢出";
 
-    String TIME_LIMIT_EXCEEDED = "时间溢出";
+    String TIME_LIMIT_EXCEEDED = "超时";
 
     String OUTPUT_LIMIT_EXCEEDED = "输出溢出";
 

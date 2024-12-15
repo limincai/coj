@@ -1,6 +1,6 @@
 package com.mincai.ikuncode.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -9,6 +9,7 @@ import com.mincai.ikuncode.common.Result;
 import com.mincai.ikuncode.constant.QuestionSubmitStatus;
 import com.mincai.ikuncode.constant.UserConstant;
 import com.mincai.ikuncode.exception.BusinessException;
+import com.mincai.ikuncode.judge.JudgeService;
 import com.mincai.ikuncode.mapper.QuestionSubmitMapper;
 import com.mincai.ikuncode.model.domain.Question;
 import com.mincai.ikuncode.model.domain.QuestionSubmit;
@@ -21,12 +22,14 @@ import com.mincai.ikuncode.model.vo.UserVO;
 import com.mincai.ikuncode.service.QuestionService;
 import com.mincai.ikuncode.service.QuestionSubmitService;
 import com.mincai.ikuncode.service.UserService;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
@@ -40,6 +43,10 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
 
     @Resource
     QuestionService questionService;
+
+    @Resource
+    @Lazy
+    JudgeService judgeService;
 
     /**
      * 题目提交
@@ -68,11 +75,16 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         questionSubmit.setLanguage(language);
         questionSubmit.setCode(code);
         questionSubmit.setStatus(QuestionSubmitStatus.WAITING);
-        //todo 判题机判题
-        questionSubmit.setQuestionJudgeInfo("{}");
         questionSubmit.setUserId(userId);
-
         save(questionSubmit);
+
+        //todo 判题机判题
+        CompletableFuture.runAsync(() -> {
+            QuestionJudgeInfo questionJudgeInfo = judgeService.doJudge(questionSubmit.getQuestionSubmitId());
+            QuestionSubmit updatedQuestionSubmit = new QuestionSubmit();
+            updatedQuestionSubmit.setQuestionJudgeInfo(JSONUtil.toJsonStr(questionJudgeInfo));
+            updateById(updatedQuestionSubmit);
+        });
 
         return Result.success(questionSubmit.getQuestionSubmitId());
     }
@@ -138,17 +150,17 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         Long questionId = questionSubmit.getQuestionId();
         String language = questionSubmit.getLanguage();
         String code = questionSubmit.getCode();
-        String questionJudgeInfo = questionSubmit.getQuestionJudgeInfo();
+        String questionJudgeInfoStr = questionSubmit.getQuestionJudgeInfo();
         Integer status = questionSubmit.getStatus();
         Date createTime = questionSubmit.getCreateTime();
 
         QuestionSubmitVO questionSubmitVO = new QuestionSubmitVO();
         questionSubmitVO.setQuestionSubmitId(questionSubmitId);
-        questionSubmitVO.setUserVO(userService.domain2Dto(userService.getById(userId)));
+        questionSubmitVO.setUserVO(userService.domain2VO(userService.getById(userId)));
         questionSubmitVO.setQuestionVO(questionService.domain2VO(questionService.getById(questionId)));
         questionSubmitVO.setLanguage(language);
         questionSubmitVO.setCode(code);
-        questionSubmitVO.setQuestionJudgeInfo(BeanUtil.toBean(questionJudgeInfo, QuestionJudgeInfo.class));
+        questionSubmitVO.setQuestionJudgeInfo(JSONUtil.toBean(questionJudgeInfoStr, QuestionJudgeInfo.class));
         questionSubmitVO.setStatus(status);
         questionSubmitVO.setCreateTime(createTime);
 
