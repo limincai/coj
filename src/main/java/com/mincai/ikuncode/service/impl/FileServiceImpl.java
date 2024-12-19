@@ -92,4 +92,35 @@ public class FileServiceImpl implements FileService {
         // 返回访问路径
         return ossProperties.getPrefix() + fileName;
     }
+
+    @Override
+    public String uploadImg(MultipartFile file) throws IOException {
+        // 原文件名
+        String originFileName = file.getOriginalFilename();
+
+        // 验证文件名是否正确
+        if (!RegUtil.isLegalPictureFormat(originFileName)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件格式不正确，请重试");
+        }
+
+        OSS ossClient = new OSSClientBuilder().build(ossProperties.getEndpoint(), ossProperties.getAccessKey(), ossProperties.getSecretAccessKey());
+
+        // 上传的文件名
+        String fileName = IMG_DIRECTORY + UUID.randomUUID() + originFileName.substring(originFileName.lastIndexOf("."));
+
+        // 上传文件
+        ossClient.putObject(
+                // 桶名
+                ossProperties.getBucketName(),
+                // 文件名
+                fileName,
+                // 原文件
+                file.getInputStream());
+
+        //关闭客户端
+        ossClient.shutdown();
+
+        // 返回访问路径
+        return ossProperties.getPrefix() + fileName;
+    }
 }

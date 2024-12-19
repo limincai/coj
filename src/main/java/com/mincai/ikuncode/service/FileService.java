@@ -14,4 +14,7 @@ public interface FileService {
      * 用户上传头像
      */
     String uploadUserAvatar(MultipartFile multipartFile, HttpSession session, Long loginUserId) throws IOException;
+
+
+    String uploadImg(MultipartFile file) throws IOException;
 }

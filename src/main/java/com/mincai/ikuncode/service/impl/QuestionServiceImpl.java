@@ -56,8 +56,6 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "题目标题已存在");
         }
 
-        // 过滤出不合法的 judgeCase
-        questionJudgeCase = filterQuestionJudgeCase(questionJudgeCase);
 
         Question question = new Question();
         question.setQuestionTitle(questionTitle);
@@ -159,7 +157,6 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "题目标题已存在");
         }
 
-        questionJudgeCase = filterQuestionJudgeCase(questionJudgeCase);
 
         question = new Question();
         question.setQuestionId(questionId);
@@ -250,39 +247,6 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         questionVOPage.setSize(questionPage.getSize());
 
         return questionVOPage;
-    }
-
-    /**
-     * 过滤出不合法的 judgeCase
-     * 只允许第一个 judgeCase 的 input 和  output 可以为空字符串
-     * 当 input 为空字符串，output 不为空字符串时，全部设置为空字符串，反之亦然
-     */
-    private List<QuestionJudgeCase> filterQuestionJudgeCase(List<QuestionJudgeCase> judgeCase) {
-        // 处理输入和输出全为空的情况
-        judgeCase.forEach(caseItem -> {
-            if (caseItem.getInput().isEmpty() && !caseItem.getOutput().isEmpty()) {
-                caseItem.setInput("");
-                caseItem.setOutput("");
-            } else if (caseItem.getOutput().isEmpty() && !caseItem.getInput().isEmpty()) {
-                caseItem.setInput("");
-                caseItem.setOutput("");
-            }
-        });
-
-        // 保留第一个空的 judgeCase，移除其他空的 judgeCase
-        // 用于记录是否已找到一个空的 case
-        boolean[] hasEmptyCase = {false};
-        return judgeCase.stream().filter(caseItem -> {
-            boolean isEmpty = caseItem.getInput().isEmpty() && caseItem.getOutput().isEmpty();
-            if (isEmpty) {
-                if (!hasEmptyCase[0]) {
-                    hasEmptyCase[0] = true;
-                    return true; // 保留第一个空 case
-                }
-                return false; // 移除多余的空 case
-            }
-            return true; // 保留非空 case
-        }).collect(Collectors.toList());
     }
 
 

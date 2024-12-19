@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.mincai.ikuncode.common.Response;
 import com.mincai.ikuncode.common.Result;
+import com.mincai.ikuncode.constant.QuestionJudgeInfoMessage;
 import com.mincai.ikuncode.constant.QuestionSubmitStatus;
 import com.mincai.ikuncode.constant.UserConstant;
 import com.mincai.ikuncode.exception.BusinessException;
@@ -13,6 +14,7 @@ import com.mincai.ikuncode.judge.JudgeService;
 import com.mincai.ikuncode.mapper.QuestionSubmitMapper;
 import com.mincai.ikuncode.model.domain.Question;
 import com.mincai.ikuncode.model.domain.QuestionSubmit;
+import com.mincai.ikuncode.model.domain.User;
 import com.mincai.ikuncode.model.dto.questisonsubmit.QuestionJudgeInfo;
 import com.mincai.ikuncode.model.dto.questisonsubmit.QuestionSubmitAddRequest;
 import com.mincai.ikuncode.model.dto.questisonsubmit.QuestionSubmitListRequest;
@@ -29,7 +31,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
@@ -48,11 +49,12 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
     @Lazy
     JudgeService judgeService;
 
+
     /**
      * 题目提交
      */
     @Override
-    public Response<Long> doSubmitQuestion(HttpSession session, QuestionSubmitAddRequest questionSubmitAddRequest) {
+    public Response<QuestionJudgeInfo> doSubmitQuestion(HttpSession session, QuestionSubmitAddRequest questionSubmitAddRequest) {
         // 当前登陆用户
         UserVO loginUserVO = (UserVO) session.getAttribute(UserConstant.USER_LOGIN_STATE);
 
@@ -60,6 +62,7 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         Long questionId = questionSubmitAddRequest.getQuestionId();
         String language = questionSubmitAddRequest.getLanguage();
         String code = questionSubmitAddRequest.getCode();
+        User user = userService.getById(userId);
 
         // 题目为空
         Question question = questionService.getById(questionId);
@@ -67,8 +70,7 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
 
-        //todo 判题
-
+        // 初始化题目提交
         QuestionSubmit questionSubmit = new QuestionSubmit();
         questionSubmit.setUserId(loginUserVO.getUserId());
         questionSubmit.setQuestionId(questionId);
@@ -78,15 +80,29 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         questionSubmit.setUserId(userId);
         save(questionSubmit);
 
-        //todo 判题机判题
-        CompletableFuture.runAsync(() -> {
-            QuestionJudgeInfo questionJudgeInfo = judgeService.doJudge(questionSubmit.getQuestionSubmitId());
-            QuestionSubmit updatedQuestionSubmit = new QuestionSubmit();
-            updatedQuestionSubmit.setQuestionJudgeInfo(JSONUtil.toJsonStr(questionJudgeInfo));
-            updateById(updatedQuestionSubmit);
-        });
+        // 判题机判题
+        QuestionJudgeInfo questionJudgeInfo = judgeService.doJudge(questionSubmit.getQuestionSubmitId());
+        if (questionJudgeInfo.getMessage().equals(QuestionJudgeInfoMessage.ACCEPTED)) {
+            // ac 数量 + 1
+            Question updateQuestion = new Question();
+            updateQuestion.setQuestionId(questionId);
+            updateQuestion.setQuestionAcceptedNum(question.getQuestionAcceptedNum() + 1);
+            questionService.updateById(updateQuestion);
+            // 鸡脚 + 1
+            User updateUser = new User();
+            updateUser.setUserJijiao(user.getUserJijiao() + 1);
+            updateUser.setUserId(userId);
+            userService.updateById(updateUser);
+        }
+        QuestionSubmit updatedQuestionSubmit = new QuestionSubmit();
+        updatedQuestionSubmit.setQuestionJudgeInfo(JSONUtil.toJsonStr(questionJudgeInfo));
+        updateById(updatedQuestionSubmit);
 
-        return Result.success(questionSubmit.getQuestionSubmitId());
+        // 题目提交数 + 1
+        question.setQuestionSubmitNum(question.getQuestionSubmitNum() + 1);
+        questionService.updateById(question);
+
+        return Result.success(questionJudgeInfo);
     }
 
     @Override

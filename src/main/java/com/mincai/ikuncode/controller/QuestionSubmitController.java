@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.mincai.ikuncode.annotation.CheckLogin;
 import com.mincai.ikuncode.common.Response;
 import com.mincai.ikuncode.exception.BusinessException;
+import com.mincai.ikuncode.model.dto.questisonsubmit.QuestionJudgeInfo;
 import com.mincai.ikuncode.model.dto.questisonsubmit.QuestionSubmitAddRequest;
 import com.mincai.ikuncode.model.dto.questisonsubmit.QuestionSubmitListRequest;
 import com.mincai.ikuncode.model.enums.ErrorCode;
@@ -37,7 +38,7 @@ public class QuestionSubmitController {
      */
     @PostMapping("/do")
     @CheckLogin
-    public Response<Long> doQuestionSubmit(HttpSession httpSession, @RequestBody QuestionSubmitAddRequest questionSubmitAddRequest) {
+    public Response<QuestionJudgeInfo> doQuestionSubmit(HttpSession httpSession, @RequestBody QuestionSubmitAddRequest questionSubmitAddRequest) {
         // 参数校验
         Long questionId = questionSubmitAddRequest.getQuestionId();
         Long userId = questionSubmitAddRequest.getUserId();

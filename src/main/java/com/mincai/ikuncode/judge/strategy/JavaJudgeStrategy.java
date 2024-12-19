@@ -1,5 +1,6 @@
 package com.mincai.ikuncode.judge.strategy;
 
+import cn.hutool.core.util.StrUtil;
 import com.mincai.ikuncode.constant.QuestionJudgeInfoMessage;
 import com.mincai.ikuncode.judge.codesandbox.model.ExecuteCodeResponse;
 import com.mincai.ikuncode.model.dto.question.QuestionJudgeCase;
@@ -36,21 +37,18 @@ public class JavaJudgeStrategy implements JudgeStrategy {
         List<String> questionInputList = questionJudgeCaseList.stream().map(QuestionJudgeCase::getInput).collect(Collectors.toList());
         // 题目输出用例
         List<String> questionOutputList = questionJudgeCaseList.stream().map(QuestionJudgeCase::getOutput).collect(Collectors.toList());
-        // todo 输入用例和输出用例的长度不相等，设置判题信息为答案错误
-        if (!questionInputList.get(0).isEmpty()) {
+        // 没有输出用例，不需要比对长度
+        if (!StrUtil.isEmpty(questionInputList.get(0))) {
             if (executeCodeOutputList.size() != questionInputList.size()) {
                 questionJudgeInfo.setMessage(QuestionJudgeInfoMessage.WRONG_ANSWER);
                 return questionJudgeInfo;
             }
         }
         // 依次比对输入和输出用例
-        if (!questionOutputList.get(0).isEmpty()) {
-            for (int i = 0; i < questionJudgeCaseList.size(); i++) {
-                // todo 如果设置题目的判题用例的输出不等于判题机判断出的输出，直接设置判题状态为答案错误
-                if (!questionOutputList.get(i).equals(executeCodeOutputList.get(i))) {
-                    questionJudgeInfo.setMessage(QuestionJudgeInfoMessage.WRONG_ANSWER);
-                    return questionJudgeInfo;
-                }
+        for (int i = 0; i < questionJudgeCaseList.size(); i++) {
+            if (!questionOutputList.get(i).equals(processOutput(executeCodeOutputList.get(i).trim()))) {
+                questionJudgeInfo.setMessage(QuestionJudgeInfoMessage.WRONG_ANSWER);
+                return questionJudgeInfo;
             }
         }
 
@@ -71,5 +69,25 @@ public class JavaJudgeStrategy implements JudgeStrategy {
         questionJudgeInfo.setMessage(QuestionJudgeInfoMessage.ACCEPTED);
         // 返回判题信息
         return questionJudgeInfo;
+    }
+
+    /**
+     * 处理用户输出，去掉引号和换行符，处理转义字符
+     *
+     * @param userOutput 用户输出的字符串
+     * @return 处理后的字符串
+     */
+    public static String processOutput(String userOutput) {
+        // 去掉两边的引号（如果有）
+        userOutput = userOutput.replaceAll("^\"|\"$", "");
+
+        // 去掉字符串中的换行符（如果有）
+        userOutput = userOutput.replaceAll("\\\\n", "");
+
+        // 去除首尾的空格
+        userOutput = userOutput.trim();
+
+        // 返回处理后的字符串
+        return userOutput;
     }
 }

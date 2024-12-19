@@ -1,12 +1,10 @@
 package com.mincai.ikuncode.judge;
 
 import cn.hutool.json.JSONUtil;
-import com.mincai.ikuncode.constant.CodeSandBoxType;
 import com.mincai.ikuncode.constant.QuestionSubmitStatus;
 import com.mincai.ikuncode.exception.BusinessException;
 import com.mincai.ikuncode.judge.codesandbox.CodeSandBox;
-import com.mincai.ikuncode.judge.codesandbox.CodeSandBoxFactory;
-import com.mincai.ikuncode.judge.codesandbox.CodeSandBoxProxy;
+import com.mincai.ikuncode.judge.codesandbox.impl.JavaDockerCodeSandbox;
 import com.mincai.ikuncode.judge.codesandbox.model.ExecuteCodeRequest;
 import com.mincai.ikuncode.judge.codesandbox.model.ExecuteCodeResponse;
 import com.mincai.ikuncode.judge.strategy.JudgeContext;
@@ -39,6 +37,7 @@ public class JudgeServiceImpl implements JudgeService {
     @Resource
     JudgeManager judgeManager;
 
+
     @Override
     public QuestionJudgeInfo doJudge(Long questionSubmitId) {
         // 参数校验
@@ -52,20 +51,12 @@ public class JudgeServiceImpl implements JudgeService {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "题目不存在");
         }
 
-
-        Long userId = questionSubmit.getUserId();
         String language = questionSubmit.getLanguage();
         String code = questionSubmit.getCode();
         // 判题信息
-        QuestionJudgeInfo questionJudgeInfo = JSONUtil.toBean(questionSubmit.getQuestionJudgeInfo(), QuestionJudgeInfo.class);
+        JSONUtil.toBean(questionSubmit.getQuestionJudgeInfo(), QuestionJudgeInfo.class);
+        QuestionJudgeInfo questionJudgeInfo;
         Integer status = questionSubmit.getStatus();
-
-        String questionTitle = question.getQuestionTitle();
-        String questionDescription = question.getQuestionDescription();
-        String questionTags = question.getQuestionTags();
-        String questionAnswer = question.getQuestionAnswer();
-        Long questionSubmitNum = question.getQuestionSubmitNum();
-        Long questionAcceptedNum = question.getQuestionAcceptedNum();
         // 题目判题用例
         List<QuestionJudgeCase> questionJudgeCaseList = JSONUtil.toList(question.getQuestionJudgeCase(), QuestionJudgeCase.class);
         // 题目判题配置
@@ -82,7 +73,7 @@ public class JudgeServiceImpl implements JudgeService {
         questionSubmitService.updateById(questionSubmit);
 
         // 调用代码沙箱进行判题，获取到执行结果
-        CodeSandBox codeSandBox = new CodeSandBoxProxy(CodeSandBoxFactory.newInstance(CodeSandBoxType.SAMPLE));
+        CodeSandBox codeSandBox = new JavaDockerCodeSandbox();
         // 判题用例输入列表
         List<String> questionInputList = questionJudgeCaseList.stream().map(QuestionJudgeCase::getInput).collect(Collectors.toList());
         // 构建执行请求对象

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.mincai.ikuncode.common.Response;
 import com.mincai.ikuncode.model.domain.QuestionSubmit;
+import com.mincai.ikuncode.model.dto.questisonsubmit.QuestionJudgeInfo;
 import com.mincai.ikuncode.model.dto.questisonsubmit.QuestionSubmitAddRequest;
 import com.mincai.ikuncode.model.dto.questisonsubmit.QuestionSubmitListRequest;
 import com.mincai.ikuncode.model.vo.QuestionSubmitVO;
@@ -18,7 +19,7 @@ public interface QuestionSubmitService extends IService<QuestionSubmit> {
     /**
      * 题目提交
      */
-    Response<Long> doSubmitQuestion(HttpSession session, QuestionSubmitAddRequest questionSubmitAddRequest);
+    Response<QuestionJudgeInfo> doSubmitQuestion(HttpSession session, QuestionSubmitAddRequest questionSubmitAddRequest);
 
     /**
      * 题目列表（分页）

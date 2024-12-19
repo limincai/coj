@@ -52,4 +52,21 @@ public class FileController {
         }
         return Result.success(fileName);
     }
+
+    /**
+     * 上传图片到服务器
+     *
+     * @return 图片的url
+     */
+    @PostMapping("/upload-img")
+    @CheckLogin()
+    public Response<String> uploadUserAvatar(MultipartFile file) {
+        String fileName;
+        try {
+            fileName = fileService.uploadImg(file);
+        } catch (IOException e) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "系统出错，请重试");
+        }
+        return Result.success(fileName);
+    }
 }
