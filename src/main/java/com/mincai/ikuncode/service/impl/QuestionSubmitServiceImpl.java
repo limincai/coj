@@ -99,8 +99,10 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         updateById(updatedQuestionSubmit);
 
         // 题目提交数 + 1
-        question.setQuestionSubmitNum(question.getQuestionSubmitNum() + 1);
-        questionService.updateById(question);
+        Question updateQuestion = new Question();
+        updateQuestion.setQuestionId(questionId);
+        updateQuestion.setQuestionSubmitNum(question.getQuestionSubmitNum() + 1);
+        questionService.updateById(updateQuestion);
 
         return Result.success(questionJudgeInfo);
     }

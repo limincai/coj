@@ -307,7 +307,7 @@ public abstract class CodeSandboxTemplate implements CodeSandBox {
         executeCodeResponse.setOutputList(new ArrayList<>());
         QuestionJudgeInfo judgeInfo = new QuestionJudgeInfo();
         judgeInfo.setMessage(e.getMessage());
-        if (memory > 0) {
+        if (memory != null && memory > 0) {
             judgeInfo.setMemory(memory / 1024 / 8);
         }
         judgeInfo.setMessage(desensitizationStr(e.getMessage()));
