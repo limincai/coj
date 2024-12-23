@@ -1,0 +1,169 @@
+1,小黑子测试,"# 1. 小黑子测试
+请在控制台输出
+```java
+I'm a Ikun
+```
+看看你是真假小黑子。
+<img src=""https://limincai-coj.oss-cn-beijing.aliyuncs.com/img/03bf59cb-e99e-4e70-9524-dce12d89b2a2.png"" width=""150""/>","[""入门""]","public class Main {
+
+    public static void main(String[] args) {
+        // please code your code
+        System.out.println(""I'm a Ikun"");
+    }
+}
+",31,2,"[{""input"":"""",""output"":""I'm a Ikun""}]","{""timeLimit"":0,""memoryLimit"":0}",2024-12-19 15:21:25,2024-12-19 20:41:15,0
+2,A + B,"# 2. A + B
+计算两个整数的
+输入两个整数，输出两个整数的和
+
+输入用例
+```java
+1 2
+```
+输出用例
+```java
+3
+```","[""入门""]","public class Solution {
+    public static void main(String[] args) {
+        // please code your code
+        int a = args[0];
+        int b = args[1];
+        System.out.println(a + b);
+    }
+}",7,2,"[{""input"":""1 2"",""output"":""3""},{""input"":""2 3"",""output"":""5""},{""input"":""1 3"",""output"":""4""}]","{""timeLimit"":0,""memoryLimit"":0}",2024-12-19 17:22:37,2024-12-19 22:05:05,0
+3,斐波那契数列,"# 3.斐波那契数列
+斐波那契数`（通常用 F(n) 表示）`形成的序列称为`斐波那契数列`。该数列由`0`和`1`开始，后面的每一项数字都是前面两项数字的和。也就是：
+```java
+F(0) = 0，F(1) = 1
+F(n) = F(n - 1) + F(n - 2)，其中 n > 1
+给定 n ，请计算 F(n) 。
+```
+示例 1：
+```java
+输入：n = 2
+输出：1
+解释：F(2) = F(1) + F(0) = 1 + 0 = 1
+```
+示例 2：
+```java
+输入：n = 3
+输出：2
+解释：F(3) = F(2) + F(1) = 1 + 1 = 2
+```
+示例 3：
+```java
+输入：n = 4
+输出：3
+解释：F(4) = F(3) + F(2) = 2 + 1 = 3
+```","[""入门"",""递归""]","import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int n = scanner.nextInt();
+        System.out.println(fibonacci(n));
+        scanner.close();
+    }
+
+    public static int fibonacci(int n) {
+        if (n <= 0) {
+            return 0;
+        } else if (n == 1) {
+            return 1;
+        }
+        return fibonacci(n - 1) + fibonacci(n - 2);
+    }
+}
+
+",7,4,"[{""input"":""0"",""output"":""0""},{""input"":""1"",""output"":""1""},{""input"":""6"",""output"":""8""},{""input"":""10"",""output"":""55""},{""input"":""23"",""output"":""28657""}]","{""timeLimit"":1000,""memoryLimit"":1000}",2024-12-19 21:57:38,2024-12-19 22:18:57,0
+4,买卖股票的最佳时机,"给你一个数组长度`n`以及整数数组`prices` ，其中 prices[i] 表示某支股票第 i 天的价格。
+
+在每一天，你可以决定是否购买和/或出售股票。你在任何时候 最多 只能持有 一股 股票。你也可以先购买，然后在 同一天 出售。
+
+返回 你能获得的 最大 利润 。
+
+示例 1：
+``` java
+输入：6 7 1 5 3 6 4
+输出：7
+解释：在第 2 天（股票价格 = 1）的时候买入，在第 3 天（股票价格 = 5）的时候卖出, 这笔交易所能获得利润 = 5 - 1 = 4。
+随后，在第 4 天（股票价格 = 3）的时候买入，在第 5 天（股票价格 = 6）的时候卖出, 这笔交易所能获得利润 = 6 - 3 = 3。
+最大总利润为 4 + 3 = 7 。
+```
+
+示例 2：
+``` java
+输入：5 1 2 3 4 5
+输出：4
+解释：在第 1 天（股票价格 = 1）的时候买入，在第 5 天 （股票价格 = 5）的时候卖出, 这笔交易所能获得利润 = 5 - 1 = 4。
+最大总利润为 4 。
+```
+
+示例 3：
+```java
+输入：5 7 6 4 3 1
+输出：0
+解释：在这种情况下, 交易无法获得正利润，所以不参与交易可以获得最大利润，最大利润为 0。
+```","[""中等"",""贪心"",""动态规划""]","import java.util.Scanner;
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int n = scanner.nextInt();
+        int[] prices = new int[n];
+        for (int i = 0; i < n; i++) {
+            prices[i] = scanner.nextInt();
+        }
+        int ans = 0;
+        for (int i = 1; i < n; i++) {
+            ans += Math.max(prices[i] - prices[i - 1], 0);
+        }
+        System.out.println(ans);
+    }
+}
+
+",7,1,"[{""input"":""5 1 2 3 4 5"",""output"":""4""},{""input"":""5 5 4 3 2 1"",""output"":""0""},{""input"":""7 3 5 2 8 6 7 9"",""output"":""11""},{""input"":""6 1 2 3 4 5 6"",""output"":""5""},{""input"":""5 9 8 7 6 5 "",""output"":""0""},{""input"":""10 3 8 4 1 7 9 2 6 3 5"",""output"":""19""},{""input"":""6 10 12 11 13 14 12"",""output"":""5""}]","{""timeLimit"":1000,""memoryLimit"":1000}",2024-12-20 14:41:55,2024-12-20 14:58:39,0
+5,两数之和,"给定一个数组长度**n**以及整数数组**nums**和一个整数目标值**target**，请你在该数组中找出 和为目标值**target**的那两个整数，并返回它们的**数组下标**。
+
+示例 1：
+``` java
+输入：4 2 7 11 15 9
+输出：0 1
+解释：因为 nums[0] + nums[1] == 9 ，返回 [0, 1] 。
+```
+示例 2：
+```java
+输入：3 3 2 4 6
+输出：1 2
+```
+示例 3：
+``` java
+输入：2 3 3 6
+输出：0 1
+```","[""入门"",""哈希表"",""数组""]","import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int n = scanner.nextInt();
+        int[] nums = new int[n];
+        for (int i = 0; i < n; i++) {
+            nums[i] = scanner.nextInt();
+        }
+        int target = scanner.nextInt();
+        Map<Integer, Integer> map = new HashMap<>();
+        for (int i = 0; i < nums.length; i++) {
+            if (map.containsKey(target - nums[i])) {
+                int num = map.get(target - nums[i]);
+                int min = Math.min(i, num);
+                int max = Math.max(i, num);
+                System.out.println(min + "" "" + max);
+                return;
+            }
+            map.put(nums[i], i);
+        }
+    }
+}
+
+",30,3,"[{""input"":""4 2 7 11 15 9"",""output"":""0 1""},{""input"":""3 3 2 4 6"",""output"":""1 2""},{""input"":""2 3 3 6"",""output"":""0 1""},{""input"":""2 3 5 8"",""output"":""0 1""},{""input"":""5 1 0 3 2 4 5"",""output"":""2 3""}]","{""timeLimit"":1000,""memoryLimit"":1000}",2024-12-20 15:15:05,2024-12-20 17:20:25,0

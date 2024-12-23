@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 
 /**
  * 代码沙箱运行结果的一个状态
+ *
+ * @author limincai
  */
 public enum QuestionExecuteResultEnum {
 
@@ -31,7 +33,6 @@ public enum QuestionExecuteResultEnum {
     /**
      * 获取值列表
      *
-     * @return
      */
     public static List<Integer> getValues() {
         return Arrays.stream(values()).map(item -> item.value).collect(Collectors.toList());
@@ -48,7 +49,7 @@ public enum QuestionExecuteResultEnum {
             return null;
         }
         for (QuestionExecuteResultEnum anEnum : QuestionExecuteResultEnum.values()) {
-            if (anEnum.value == value) {
+            if (anEnum.value.equals(value)) {
                 return anEnum;
             }
         }
